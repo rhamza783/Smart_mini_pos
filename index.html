@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="color-scheme" content="light dark">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL-MADINA SHINWARI POS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Multiple Google Fonts Linked -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400..700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Advanced Reporting Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Flatpickr for Modern Date & Time Popups -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Link the external CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Inject dynamic preferences for fonts & styling -->
+    <style id="dynamic-preferences"></style>
+</head>
+<body class="hide-cart" data-theme="default">
+
+<!-- LOGIN MODAL -->
+<div id="login-modal" class="modal active" style="z-index: 9999; background: var(--bg-app); backdrop-filter: blur(15px);">
+    <div class="modal-content" style="max-width: 350px; text-align: center; box-shadow: var(--neumorph-out);">
+        <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--col-primary); margin-bottom: 15px;"></i>
+        <h2 style="color: var(--col-primary); margin-bottom: 20px;">System Login</h2>
+        <div class="modern-input-group" style="margin-bottom: 15px; text-align: left;">
+            <input type="text" id="login-id" class="modern-input" placeholder="Login ID" value="admin">
+        </div>
+        <div class="modern-input-group" style="margin-bottom: 20px; text-align: left;">
+            <input type="password" id="login-pass" class="modern-input" placeholder="Password" value="admin">
+        </div>
+        <button class="btn-modern btn-modern-save" style="width: 100%; padding: 14px; font-size: 1.1rem;" onclick="performLogin()">Login</button>
+        <p id="login-error" style="color: var(--col-danger); font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 600;">Invalid Login ID or Password</p>
+    </div>
+</div>
+
+<!-- HEADER -->
+<div class="header-bar">
+    <h1 id="app-header-title">AL-MADINA SHINWARI POS</h1>
+    <div class="header-buttons" id="main-nav-buttons">
+        <!-- Dynamic zone buttons injected here -->
+    </div>
+</div>
+
+<!-- SIDE MENU -->
+<div class="slide-out-menu" id="slide-out-menu">
+    <button id="close-menu" onclick="document.getElementById('slide-out-menu').classList.remove('active');" style="background:none;border:none;font-size:2rem;float:right;cursor:pointer;color:var(--text-secondary);">&times;</button>
+    <br style="clear:both;">
+    
+    <!-- ENHANCED BUTTONS -->
+    <a href="#" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i> Live Dashboard</a>
+    <a href="#" onclick="showSection('history')">Order History</a>
+    
+    <!-- NEW: Z-Reading Shift Report Button -->
+    <a href="#" onclick="openZReadingModal()"><i class="fas fa-receipt"></i> Shift Z-Reading</a>
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn-modern" style="flex:1; background:var(--col-primary-light); color:var(--col-primary); padding:10px; font-size:0.8rem;" onclick="openDayEndModal()"><i class="fas fa-moon"></i> Day End</button>
+    </div>
+
+    <a href="#" onclick="showSection('clients')">Clients Ledger</a>
+    <a href="#" onclick="showSection('reports')">Reports Suite</a>
+    <a href="#" onclick="showSection('config')">Configuration</a>
+    
+    <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
+    <h4 style="margin:10px 0 5px; color:var(--text-secondary); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; text-align:center;">Legacy Settings</h4>
+    <a href="#" onclick="openTableManager()">Table Manager</a>
+    <a href="#" onclick="openAdvancedMenuManager()">Menu Manager</a>
+    <a href="#" onclick="openCategoryManager()">Category Manager</a>
+    <hr style="margin: 15px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
+    <a href="#" onclick="backupSystem()" style="color: var(--col-primary);"><i class="fas fa-download"></i> Backup Data</a>
+    <a href="#" onclick="document.getElementById('restore-input').click()" style="color: var(--col-danger);"><i class="fas fa-upload"></i> Restore Data</a>
+    <input type="file" id="restore-input" style="display: none;" onchange="restoreSystem(this)">
+    
+    <!-- NEW: Log Out Button -->
+    <a href="#" onclick="performLogout()" style="background: var(--col-danger); color: white; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> Log Out / Change Shift</a>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="main-container">
+    <!-- LEFT SECTIONS (Content) -->
+    <div id="dynamic-zones-wrapper" style="display: contents;"></div>
+
+    <div class="section" id="items-section">
+        <div class="pos-category-row" id="menu-cat-container"></div>
+        <div class="pos-grid-container" id="menu-items-container"></div>
+    </div>
+
+    <!-- HISTORY SECTION -->
+    <div class="section" id="history-section">
+        <div class="split-layout">
+            <div class="split-left">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="color:var(--col-primary); margin:0;">Order History</h3>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <input type="checkbox" id="hist-show-all" onchange="renderHistory()" style="width:16px; height:16px; cursor:pointer;" checked>
+                        <label for="hist-show-all" style="font-size:0.8rem; color:var(--text-secondary); cursor:pointer;">Show Past Days</label>
+                    </div>
+                </div>
+                
+                <!-- NEW: Totals Header -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <div style="background:var(--bg-app); padding:10px; border-radius:10px; box-shadow:var(--neumorph-in-sm); text-align:center;">
+                        <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:800;">ACTIVE TOTAL</div>
+                        <div style="font-size:1.1rem; font-weight:800; color:var(--col-primary);" id="hist-active-total">PKR 0</div>
+                    </div>
+                    <div style="background:var(--bg-app); padding:10px; border-radius:10px; box-shadow:var(--neumorph-in-sm); text-align:center;">
+                        <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:800;">CLOSED TOTAL</div>
+                        <div style="font-size:1.1rem; font-weight:800; color:var(--col-success);" id="hist-closed-total">PKR 0</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="hist-search" class="adv-table-search" placeholder="Search Invoice, Customer, Amount, Item..." oninput="renderHistory()" style="margin-bottom: 0;">
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px; margin-top: 10px;">
+                    <button class="action-btn" style="flex:1; background:var(--col-danger);" onclick="openDeletedHistory()"><i class="fas fa-trash-restore"></i> Deleted Orders</button>
+                    <!-- NEW: Bulk Delete Button -->
+                    <button class="action-btn" style="flex:1; background:var(--col-secondary);" onclick="openBulkDeleteModal()"><i class="fas fa-eraser"></i> Bulk Delete</button>
+                </div>
+                <div id="order-history-list" style="overflow-y:auto; flex:1; padding-right:5px;"></div>
+            </div>
+            <div class="split-right" id="hist-detail-body" style="display:flex; flex-direction:column;">
+                <h2 style="color:var(--text-secondary); text-align:center; margin-top:50px;">Select an order to view details</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <div class="section" id="dashboard-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+            <h2 style="color:var(--col-primary); margin:0;">Live Dashboard</h2>
+        </div>
+        <div class="report-toolbar" style="margin-bottom: 15px; display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="input-group" style="flex:1; min-width:200px;">
+                <label>Date/Time From</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="date" id="dash-start-date" class="modern-input" style="flex:1; padding:10px;">
+                    <input type="time" id="dash-start-time" class="modern-input" style="flex:1; padding:10px;">
+                </div>
+            </div>
+            <div class="input-group" style="flex:1; min-width:200px;">
+                <label>Date/Time To</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="date" id="dash-end-date" class="modern-input" style="flex:1; padding:10px;">
+                    <input type="time" id="dash-end-time" class="modern-input" style="flex:1; padding:10px;">
+                </div>
+            </div>
+            <button class="icon-btn-sm" style="margin-top:20px; width:45px; height:45px; background:var(--col-primary); color:white;" onclick="renderDashboard()"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="dash-content-body" style="overflow-y:auto; flex:1; padding-right:5px; background:var(--bg-app); padding:20px; border-radius:15px; box-shadow:var(--neumorph-in);"></div>
+    </div>
+
+    <!-- CLIENTS SECTION -->
+    <div class="section" id="clients-section">
+        <div class="split-layout">
+            <div class="split-left">
+                <h3 style="margin-bottom:15px; color:var(--col-primary);">Clients Management</h3>
+                <div class="input-group">
+                    <input type="text" id="cl-search" class="adv-table-search" placeholder="Search Clients by Name or Phone..." oninput="renderClientsList()" style="margin-bottom: 10px;">
+                </div>
+                <button class="action-btn" style="background:var(--col-primary); margin-bottom:15px; width:100%;" onclick="newClientForm()">
+                    <i class="fas fa-user-plus"></i> Add New Client
+                </button>
+                <div id="cl-list-body" style="overflow-y:auto; flex:1; padding-right:5px;"></div>
+            </div>
+            <div class="split-right" id="cl-detail-body">
+                <h2 style="color:var(--text-secondary); text-align:center; margin-top:50px;">Select a client to view CRM & Ledger</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORTS SECTION -->
+    <div class="section" id="reports-section">
+        <div class="split-layout">
+            <div class="split-left">
+                <h3 style="margin-bottom:15px; color:var(--col-primary);">Reports Suite</h3>
+                <div id="rep-menu-body" style="overflow-y:auto; flex:1; padding-right:5px;"></div>
+            </div>
+            <div class="split-right" style="display:flex; flex-direction:column;">
+                <div class="report-toolbar">
+                    <div id="rep-date-filters" style="display:flex; gap:10px; flex-wrap:wrap; flex:1;">
+                        <div class="input-group" style="flex:1;">
+                            <label>Date/Time From</label>
+                            <input type="datetime-local" id="rep-start" class="modern-input">
+                        </div>
+                        <div class="input-group" style="flex:1;">
+                            <label>Date/Time To</label>
+                            <input type="datetime-local" id="rep-end" class="modern-input">
+                        </div>
+                    </div>
+                    <button class="icon-btn-sm" style="margin-top:20px; width:45px; height:45px; background:var(--col-primary); color:white;" onclick="runReport()"><i class="fas fa-play"></i></button>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:10px; justify-content:flex-end; align-items:center;">
+                    <span style="font-size:0.75rem; color:var(--text-secondary);">Modern Exporters:</span>
+                    <button class="icon-btn-sm" title="Download Excel (CSV)" onclick="exportReport('csv')"><i class="fas fa-file-excel"></i></button>
+                    <button class="icon-btn-sm" title="Print/PDF" onclick="exportReport('pdf')"><i class="fas fa-file-pdf"></i></button>
+                    <button class="icon-btn-sm" title="Download Text" onclick="exportReport('txt')"><i class="fas fa-file-alt"></i></button>
+                    <button class="icon-btn-sm" title="HTML View" onclick="exportReport('html')"><i class="fas fa-code"></i></button>
+                </div>
+                <h2 id="rep-title" style="margin-bottom:15px; color:var(--text-primary);">Dashboard</h2>
+                <div id="rep-content-body" style="overflow-y:auto; flex:1; background:var(--bg-app); padding:15px; border-radius:10px; box-shadow:var(--neumorph-in);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIGURATION SECTION -->
+    <div class="section" id="config-section">
+        <div class="split-layout">
+            <div class="split-left" style="width: 250px;">
+                <h3 style="margin-bottom:15px; color:var(--col-primary);">Configuration</h3>
+                <div id="conf-menu-body" style="overflow-y:auto; flex:1; padding-right:5px;"></div>
+            </div>
+            <div class="split-right" id="conf-content-body">
+                <h2 style="color:var(--text-secondary); text-align:center; margin-top:50px;">Select a configuration category</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL (CART) -->
+    <div class="right-panel-container">
+        <input type="hidden" id="input-discount" value="0">
+        <!-- META CARD -->
+        <div class="compact-meta-card">
+            <div class="meta-line">
+                <div class="table-group-container">
+                    <span class="table-title" id="current-table-display">--</span>
+                    <button class="icon-btn-sm btn-transfer" onclick="openTransferModal()" title="Transfer" style="background:var(--col-primary-light); color:var(--col-primary);"><i class="fas fa-exchange-alt"></i></button>
+                    <button class="icon-btn-sm btn-transfer" onclick="openMergeModal()" title="Merge Table" style="background:rgba(229, 62, 62, 0.1); color:var(--col-danger);"><i class="fas fa-object-group"></i></button>
+                </div>
+                <span class="timer-badge" id="serv-time-display">00s</span>
+                <div class="server-badge" id="btn-waiter" onclick="openWaiterModal()"><i class="fas fa-user-tie"></i> Staff</div>
+            </div>
+            <div class="meta-line">
+                <div class="info-group">
+                    <span class="info-text" id="order-id-display">Ord # --</span><span class="info-text" style="color:var(--col-primary);">|</span><span class="info-text" id="start-time-display">--:--</span>
+                </div>
+                <div class="compact-actions">
+                    <button class="icon-btn-sm" onclick="openCustomerModal()" title="Customer Info"><i class="fas fa-user-edit"></i></button>
+                    <button class="icon-btn-sm" onclick="openDiscountModal()" title="Discount"><i class="fas fa-tag"></i></button>
+                </div>
+            </div>
+            <!-- Linked client in Cart -->
+            <div id="cart-client-display" style="font-size: 0.75rem; color: var(--col-primary); font-weight: 700; display: none; margin-top: 5px;"></div>
+        </div>
+
+        <!-- ORDER LIST -->
+        <div class="order-list-header">
+            <span>Item Name</span><span class="header-col-right">Price</span><span class="header-col-center">Qty</span><span class="header-col-right">Total</span>
+        </div>
+        <div class="order-items-wrapper">
+            <div id="order-items-list"><p style="text-align:center; color:var(--text-secondary); margin-top:30px; font-size:0.85rem; font-style:italic;">Select a Table to start</p></div>
+        </div>
+        
+        <!-- FOOTER -->
+        <div class="order-footer">
+            <div class="totals-compact-row">
+                <span>Sub: <span id="subtotal-display">0</span></span>
+                <span id="discount-display-txt">Disc: 0</span>
+                <span class="big-total" id="total-display">PKR 0</span>
+            </div>
+            <div class="order-actions">
+                <button class="action-btn btn-delete" onclick="clearOrder()"><i class="fas fa-trash"></i></button>
+                <button class="action-btn btn-print" onclick="printBill(true)" style="background:var(--col-secondary);"><i class="fas fa-receipt"></i> KOT</button>
+                <button class="action-btn btn-print" onclick="printBill(false)"><i class="fas fa-print"></i> Bill</button>
+                <button class="action-btn btn-close" id="cart-close-btn" onclick="openPaymentModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- === MODALS GO HERE === -->
+<div id="confirm-modal" class="modal" style="z-index: 2600;">
+    <div class="modal-content" style="max-width: 350px; text-align: center; padding: 40px 30px;">
+        <i class="fas fa-question-circle" style="font-size: 3.5rem; color: var(--col-primary); margin-bottom: 20px;"></i>
+        <h3 id="confirm-title" style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.3rem;">Confirm</h3>
+        <p id="confirm-message" style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; font-weight: 500;"></p>
+        <div style="display: flex; gap: 15px;">
+            <button class="btn-modern btn-modern-cancel" style="flex:1;" onclick="closeModal('confirm-modal')">Cancel</button>
+            <button class="btn-modern btn-modern-save" style="flex:1;" id="confirm-ok-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- DAY END MODAL -->
+<div id="day-end-modal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="color:var(--col-danger); text-align:center;">Day End Actions</h3>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:20px;">Reconcile your accounts first, then run Day End to reset totals.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            <button class="btn-modern" style="background:var(--col-primary-light); color:var(--col-primary); padding:15px; font-weight:700; font-size:1rem; border:none; border-radius:12px; cursor:pointer;" onclick="closeModal('day-end-modal'); openReconcileModal();">1. Reconcile Accounts</button>
+            <button class="btn-modern" style="background:rgba(229, 62, 62, 0.1); color:var(--col-danger); padding:15px; font-weight:700; font-size:1rem; border:none; border-radius:12px; cursor:pointer;" onclick="performDayEnd();">2. Perform Day End</button>
+        </div>
+        
+        <button onclick="closeModal('day-end-modal')" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:12px; background:var(--bg-app); box-shadow:var(--neumorph-out-sm); font-weight:700; cursor:pointer; color:var(--text-secondary);">Cancel</button>
+    </div>
+</div>
+
+<!-- RECONCILE MODAL -->
+<div id="reconcile-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h3 style="color:var(--col-primary);">Reconcile Accounts</h3>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px;">Check system expected amounts against physical actuals.</p>
+        <div id="reconcile-body"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('reconcile-modal')">Close</button>
+            <button class="save" onclick="closeModal('reconcile-modal'); showToast('Reconciled Successfully');">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETED HISTORY MODAL -->
+<div id="deleted-history-modal" class="modal">
+    <div class="modal-content" style="max-width: 800px; width:90%;">
+        <h3 style="color:var(--col-danger);">Deleted Orders History</h3>
+        <div class="report-toolbar">
+            <div class="input-group"><label>From</label><input type="date" id="del-start"></div>
+            <div class="input-group"><label>To</label><input type="date" id="del-end"></div>
+            <button class="icon-btn-sm" style="margin-top:20px; background:var(--col-danger); color:white;" onclick="renderDeletedHistory()"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="deleted-history-body" style="overflow-y:auto; max-height:400px;"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('deleted-history-modal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Z-READING MODAL -->
+<div id="z-reading-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h3 style="color:var(--col-primary);"><i class="fas fa-receipt"></i> Shift Z-Reading</h3>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px;">Sales breakdown by cashier for the current shift.</p>
+        <div id="z-reading-body" style="max-height: 400px; overflow-y:auto; padding: 5px;"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('z-reading-modal')">Close</button>
+            <button class="save" onclick="printZReading()"><i class="fas fa-print"></i> Print Z-Reading</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: BULK DELETE MODAL -->
+<div id="bulk-delete-modal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h3 style="color:var(--col-danger);"><i class="fas fa-exclamation-triangle"></i> Bulk Delete History</h3>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px;">Permanently wipe orders within a specific date/time range. (Admin Only)</p>
+        <div class="modern-input-group"><label>From Date & Time</label><input type="datetime-local" id="bulk-del-start" class="modern-input"></div>
+        <div class="modern-input-group"><label>To Date & Time</label><input type="datetime-local" id="bulk-del-end" class="modern-input"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('bulk-delete-modal')">Cancel</button>
+            <button class="save" style="background:var(--col-danger);" onclick="executeBulkDelete()">Delete Permanently</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: SMART IMPORT SUMMARY MODAL -->
+<div id="import-summary-modal" class="modal" style="z-index: 3000;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <i class="fas fa-file-import" style="font-size: 3rem; color: var(--col-primary); margin-bottom: 15px;"></i>
+        <h3 style="color:var(--text-primary); margin-bottom:10px;">Import Summary</h3>
+        <div id="import-summary-text" style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('import-summary-modal')">Cancel</button>
+            <button class="save" id="import-confirm-btn">Confirm Import</button>
+        </div>
+    </div>
+</div>
+
+<!-- CUSTOM ALERT MODAL -->
+<div id="custom-alert-modal" class="modal" style="z-index: 2500;">
+    <div class="modal-content" style="max-width: 350px; text-align: center; padding: 40px 30px;">
+        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--col-danger); margin-bottom: 15px;"></i>
+        <h3 id="alert-title" style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.2rem;">Alert</h3>
+        <p id="alert-message" style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; font-weight: 500;"></p>
+        <button class="btn-modern btn-modern-save" style="width: 100%; background: var(--col-primary);" onclick="closeModal('custom-alert-modal')">Okay</button>
+    </div>
+</div>
+
+<!-- CUSTOM PRICE PROMPT MODAL -->
+<div id="custom-prompt-modal" class="modal" style="z-index: 2600;">
+    <div class="modal-content" style="max-width: 350px;">
+        <h3 id="prompt-title" style="font-size: 1.1rem; margin-bottom: 15px;">Enter Value</h3>
+        <div class="modern-input-group">
+            <input type="number" id="prompt-input" class="modern-input" placeholder="0" style="font-size: 1.2rem; text-align: center; font-weight: bold;">
+        </div>
+        <div class="modal-buttons" style="margin-top: 20px;">
+            <button class="btn-modern btn-modern-cancel" style="flex:1;" onclick="closePrompt()">Cancel</button>
+            <button class="btn-modern btn-modern-save" style="flex:1;" id="prompt-confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- VARIANT SELECTION MODAL -->
+<div id="variant-modal" class="modal" style="z-index: 2550;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h3 id="variant-title" style="margin-bottom:20px; color:var(--col-primary);">Select Variant</h3>
+        <div id="variant-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('variant-modal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- CUSTOMER MODAL (SMART AUTOCOMPLETE) -->
+<div id="customer-modal" class="modal">
+    <div class="modal-content">
+        <h3>Order Details</h3>
+        <div class="input-group">
+            <label style="color:var(--col-primary);">Link to Existing Client</label>
+            <select id="cart-client-select" onchange="autoFillClient()" style="border: 1px solid var(--col-primary);"></select>
+        </div>
+        <div style="text-align:center; font-size:0.7rem; color:var(--text-secondary); margin-bottom:15px;">-- OR MANUAL ENTRY --</div>
+
+        <div class="input-group">
+            <label>Customer Name</label>
+            <div style="position:relative;">
+                <input type="text" id="cust-name" class="modern-input" placeholder="Name" oninput="suggestClients(this.value, 'name')" autocomplete="off">
+                <div id="cust-name-sug" style="position:absolute; top:calc(100% + 5px); left:0; right:0; background:var(--bg-app); z-index:100; max-height:200px; overflow-y:auto; display:none; border-radius:12px; box-shadow:var(--neumorph-out); padding: 5px;"></div>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Phone Number (Smart Search)</label>
+            <div style="position:relative;">
+                <input type="text" id="cust-phone" class="modern-input" placeholder="0300..." oninput="suggestClients(this.value, 'phone')" autocomplete="off">
+                <div id="cust-phone-sug" style="position:absolute; top:calc(100% + 5px); left:0; right:0; background:var(--bg-app); z-index:100; max-height:200px; overflow-y:auto; display:none; border-radius:12px; box-shadow:var(--neumorph-out); padding: 5px;"></div>
+            </div>
+        </div>
+        <div class="input-group"><label>Address / Note</label><input type="text" class="modern-input" id="cust-address" placeholder="Address... (Saves automatically)"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('customer-modal')">Cancel</button>
+            <button class="save" onclick="saveCustomerDetails()">Save & Apply</button>
+        </div>
+    </div>
+</div>
+
+<!-- DISCOUNT MODAL -->
+<div id="discount-modal" class="modal">
+    <div class="modal-content">
+        <h3>Discount</h3>
+        <div class="input-group"><label>Percentage (%)</label><input type="number" class="modern-input" id="modal-disc-percent" placeholder="0" oninput="calculateModalDiscount('percent')"></div>
+        <div class="input-group"><label>Fixed Amount (PKR)</label><input type="number" class="modern-input" id="modal-disc-fixed" placeholder="0" oninput="calculateModalDiscount('fixed')"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('discount-modal')">Cancel</button>
+            <button class="save" onclick="applyModalDiscount()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div id="payment-modal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3>Payment</h3>
+        <div class="pay-summary-row">
+            <div class="pay-info-box"><div class="pay-info-label">Total Due</div><div class="pay-info-val" id="pay-total-due">0</div></div>
+            <div class="pay-info-box"><div class="pay-info-label">Total Paid</div><div class="pay-info-val val-green" id="pay-total-paid">0</div></div>
+            <div class="pay-info-box"><div class="pay-info-label">Balance</div><div class="pay-info-val val-red" id="pay-balance">0</div></div>
+        </div>
+        <label style="font-size:0.75rem; color:var(--text-secondary); font-weight:700; display:block; margin-bottom:8px;">SELECT METHOD</label>
+        
+        <div class="method-grid" id="dynamic-payment-grid"></div>
+        <input type="hidden" id="selected-pay-method" value="Cash">
+        
+        <div class="pay-input-group">
+            <input type="number" id="pay-input-amount" placeholder="Amount" class="pay-input-styled">
+            <button class="pay-btn-add" onclick="addPaymentRow()"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="payment-list-container" id="payment-rows-container"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal('payment-modal')">Cancel</button>
+            <button class="save" id="btn-finish-order" onclick="finishOrder()">Print & Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- WAITER MODAL -->
+<div id="waiter-modal" class="modal">
+    <div class="modal-content">
+        <h3>Select Waiter</h3>
+        <div id="waiter-list" style="display:flex; flex-direction:column; gap:12px; max-height:250px; overflow-y:auto; padding:5px;"></div>
+        <button class="btn-modern" onclick="closeModal('waiter-modal')" style="width:100%; margin-top:20px;">Cancel</button>
+    </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<div id="transfer-modal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3>Transfer Order To</h3>
+        <div id="transfer-list" class="transfer-grid"></div>
+        <button class="btn-modern" onclick="closeModal('transfer-modal')" style="width:100%; margin-top:20px;">Cancel</button>
+    </div>
+</div>
+
+<!-- MERGE MODAL -->
+<div id="merge-modal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3>Merge With Active Table</h3>
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px; text-align:center;">Select a table to merge this order <strong>INTO</strong>.</p>
+        <div id="merge-list" class="transfer-grid"></div>
+        <button class="btn-modern" onclick="closeModal('merge-modal')" style="width:100%; margin-top:20px;">Cancel</button>
+    </div>
+</div>
+
+<!-- TABLE MANAGER MODAL -->
+<div id="table-manager-modal" class="modal">
+    <div class="modal-content adv-modal-wide">
+        <div class="manager-header-bar">
+            <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                <h3 style="margin:0;">Table Master</h3>
+                <div class="modern-tabs" style="border:none; padding:0; background:transparent;">
+                    <button class="mod-tab-btn active" style="padding:10px 15px;" onclick="switchTblTab('tables', this)">Tables</button>
+                    <button class="mod-tab-btn" style="padding:10px 15px;" onclick="switchTblTab('sections', this)">Sections</button>
+                    <button class="mod-tab-btn" style="padding:10px 15px;" onclick="switchTblTab('zones', this)">Zones</button>
+                </div>
+            </div>
+            <button class="manager-close-btn" onclick="closeModal('table-manager-modal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="manager-content-layout">
+            <div class="manager-list-side">
+                <div class="manager-search-area">
+                    <div class="modern-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tbl-search-input" placeholder="Search..." oninput="renderTblManagerList(this.value)">
+                    </div>
+                    
+                    <!-- NEW: Modular Backup Buttons -->
+                    <button class="btn-new-item" style="background:var(--col-secondary); padding: 10px;" onclick="exportTablesJSON()" title="Export JSON"><i class="fas fa-download"></i></button>
+                    <button class="btn-new-item" style="background:var(--col-success); padding: 10px;" onclick="document.getElementById('import-tables-input').click()" title="Smart Import"><i class="fas fa-upload"></i></button>
+                    <input type="file" id="import-tables-input" accept=".json" style="display:none;" onchange="handleTablesImport(this)">
+                    
+                    <button class="btn-new-item" onclick="resetCurrentTblForm()"><i class="fas fa-plus"></i> New</button>
+                </div>
+                <div class="manager-list-wrapper" id="tbl-manager-list-body"></div>
+            </div>
+            
+            <div class="manager-form-side">
+                <div class="manager-form-content" style="display: flex; flex-direction: column; height: 100%;">
+                    <div id="view-tbl-tables" class="modern-form-grid" style="grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; width: 100%;">
+                        <div class="modern-input-group"><label>Table Name *</label><input type="text" class="modern-input" id="adv-tbl-name" placeholder="e.g. Table 1" list="dl-tables"></div>
+                        <div class="modern-input-group"><label>Display / Sort Order</label><input type="number" class="modern-input" id="adv-tbl-sort" placeholder="1, 2, 3..."></div>
+                        <div class="modern-input-group"><label>Zone *</label><select id="adv-tbl-zone"></select></div>
+                        <div class="modern-input-group"><label>Section *</label><select id="adv-tbl-section"></select></div>
+                    </div>
+                    <div id="view-tbl-sections" class="modern-form-grid" style="display:none; grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; width: 100%;">
+                        <div class="modern-input-group"><label>Section Name *</label><input type="text" class="modern-input" id="adv-sec-name" placeholder="e.g. Indoor Hall"></div>
+                        <div class="modern-input-group"><label>Prefix (Optional)</label><input type="text" class="modern-input" id="adv-sec-prefix" placeholder="e.g. Ind"></div>
+                        <div class="modern-input-group"><label>Belongs to Zone *</label><select id="adv-sec-zone"></select></div>
+                    </div>
+                    <div id="view-tbl-zones" class="modern-form-grid" style="display:none; grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; width: 100%;">
+                        <div class="modern-input-group"><label>Zone Name *</label><input type="text" class="modern-input" id="adv-zone-name" placeholder="e.g. Dine In"></div>
+                        <div class="modern-input-group"><label>Zone ID (No spaces/specials) *</label><input type="text" class="modern-input" id="adv-zone-id" placeholder="e.g. dinein" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')"></div>
+                    </div>
+                </div>
+                
+                <div class="manager-footer" style="justify-content: space-between;">
+                    <button class="btn-modern" style="background: var(--bg-app); color: var(--col-danger); border: 1px solid var(--col-danger); display: none;" id="btn-delete-tbl-master" onclick="deleteTblMaster()">Delete</button>
+                    <div style="display: flex; gap: 15px; margin-left: auto;">
+                        <button class="btn-modern btn-modern-cancel" onclick="closeModal('table-manager-modal')">Cancel</button>
+                        <button class="btn-modern btn-modern-save" id="btn-save-tbl-master" onclick="saveTblMaster()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORY MANAGER MODAL -->
+<div id="cat-manager-modal" class="modal">
+    <div class="modal-content adv-modal-wide">
+        <div class="manager-header-bar">
+            <h3>Category Master</h3>
+            <button class="manager-close-btn" onclick="closeModal('cat-manager-modal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="manager-content-layout">
+            <div class="manager-list-side">
+                <div class="manager-search-area">
+                    <div class="modern-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="cat-search-input" placeholder="Search categories..." oninput="renderCategoryManagerList(this.value)">
+                    </div>
+                    <button class="btn-new-item" onclick="resetCategoryForm()"><i class="fas fa-plus"></i> New</button>
+                </div>
+                <div class="manager-list-wrapper" id="cat-manager-list-body"></div>
+            </div>
+            
+            <div class="manager-form-side">
+                <div class="manager-form-content" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+                    <div class="modern-form-grid" style="grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; width: 100%;">
+                        <div class="modern-input-group"><label>Category Name *</label><input type="text" class="modern-input" id="adv-cat-name" placeholder="e.g. BAR B Q" list="dl-categories"></div>
+                        <div class="modern-input-group"><label>Category ID (Internal) *</label><input type="text" class="modern-input" id="adv-cat-id" placeholder="e.g. bbq" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')"></div>
+                    </div>
+                </div>
+                
+                <div class="manager-footer" style="justify-content: space-between;">
+                    <button class="btn-modern" style="background: var(--bg-app); color: var(--col-danger); border: 1px solid var(--col-danger); display: none;" id="btn-delete-cat" onclick="deleteCategoryItem()">Delete Category</button>
+                    <div style="display: flex; gap: 15px; margin-left: auto;">
+                        <button class="btn-modern btn-modern-cancel" onclick="closeModal('cat-manager-modal')">Cancel</button>
+                        <button class="btn-modern btn-modern-save" onclick="saveCategoryItem()">Save Category</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADVANCED MENU MANAGER -->
+<div id="advanced-menu-modal" class="modal">
+    <div class="modal-content adv-modal-wide">
+        <div class="manager-header-bar">
+            <h3>Product Master</h3>
+            <button class="manager-close-btn" onclick="closeModal('advanced-menu-modal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="manager-content-layout">
+            <div class="manager-list-side">
+                <div class="manager-search-area">
+                    <div class="modern-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="manager-search-input" placeholder="Name, code or category..." oninput="renderManagerList(this.value)">
+                    </div>
+                    
+                    <!-- NEW: Modular Backup Buttons for CSV Menu -->
+                    <button class="btn-new-item" style="background:var(--col-secondary); padding: 10px;" onclick="exportMenuCSV()" title="Export to Excel (CSV)"><i class="fas fa-file-excel"></i></button>
+                    <button class="btn-new-item" style="background:var(--col-success); padding: 10px;" onclick="document.getElementById('import-menu-input').click()" title="Smart Import (CSV)"><i class="fas fa-file-import"></i></button>
+                    <input type="file" id="import-menu-input" accept=".csv" style="display:none;" onchange="handleMenuImport(this)">
+                    
+                    <button class="btn-new-item" onclick="resetManagerForm()"><i class="fas fa-plus"></i> New</button>
+                </div>
+                <div class="manager-list-wrapper" id="manager-list-body"></div>
+            </div>
+            
+            <div class="manager-form-side">
+                <div class="modern-tabs">
+                    <button class="mod-tab-btn active" onclick="switchAdvTab('general', this)">General Info</button>
+                    <button class="mod-tab-btn" onclick="switchAdvTab('recipe', this)">Recipe (BOM)</button>
+                </div>
+                
+                <div id="tab-general" class="manager-form-content tab-content" style="display: block;">
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Product Name *</label><input type="text" class="modern-input" id="adv-item-name" placeholder="e.g. Chicken Karahi" list="dl-items"></div>
+                        <div class="modern-input-group"><label>Urdu Name</label><input type="text" class="modern-input" id="adv-item-alt-name" style="font-family: 'Noto Nastaliq Urdu'; text-align: right;" placeholder="اردو نام"></div>
+                        <div class="modern-input-group"><label>Selling Price (PKR) *</label><input type="number" class="modern-input" id="adv-item-price" placeholder="0.00"></div>
+                        <div class="modern-input-group"><label>Display / Sort Order</label><input type="number" class="modern-input" id="adv-item-sort" placeholder="1, 2, 3..."></div>
+                        <div class="modern-input-group"><label>Category</label><select id="adv-item-cat"></select></div>
+                        <div class="modern-input-group"><label>Item Code / SKU</label><input type="text" class="modern-input" id="adv-item-code" placeholder="Optional"></div>
+                        <div class="modern-input-group">
+                            <label>Status</label>
+                            <select id="adv-item-status"><option value="available">Available</option><option value="disabled">Disabled</option></select>
+                        </div>
+                        <div class="modern-input-group full-width">
+                            <label>Product Image</label>
+                            <div class="img-upload-card" id="adv-img-card" onclick="document.getElementById('adv-img-input').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Click to upload image<br>(Max 1MB)</span>
+                                <img id="adv-img-preview" src="" style="display:none;">
+                                <button class="img-remove-btn" onclick="removeAdvImage(event)"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <input type="file" id="adv-img-input" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                            <input type="hidden" id="adv-img-base64">
+                        </div>
+                        <div class="modern-input-group full-width" style="flex-direction: row; align-items: center; gap: 10px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="adv-ask-price" class="apple-switch">
+                            <label for="adv-ask-price" style="margin:0; font-size:0.9rem; cursor:pointer; text-transform:none;">Ask for price at sale (Open Price / Market Price)</label>
+                        </div>
+                        <div class="modern-input-group full-width" style="flex-direction: row; align-items: center; gap: 10px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="adv-ask-qty" class="apple-switch">
+                            <label for="adv-ask-qty" style="margin:0; font-size:0.9rem; cursor:pointer; text-transform:none;">Ask for exact Quantity/Weight at sale (e.g., loose Roti, Grams)</label>
+                        </div>
+
+                        <!-- MODULAR VARIANTS SECTION -->
+                        <div class="modern-input-group full-width" style="margin-top:10px; border-top:1px dashed rgba(0,0,0,0.1); padding-top:15px;">
+                            <label style="color:var(--col-primary);">Modular Variants (e.g. Half, Full, Achari) - Leaves base price if empty</label>
+                            <div id="adv-variants-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;"></div>
+                            <button class="btn-modern" style="background:var(--col-primary-light); color:var(--col-primary); font-size:0.8rem; padding:10px; border:1px dashed var(--col-primary);" onclick="addVariantField()">+ Add Variant Option</button>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div id="tab-recipe" class="manager-form-content tab-content" style="display:none; text-align:center; padding: 50px;">
+                    <i class="fas fa-tools" style="font-size: 3.5rem; color: var(--text-secondary); margin-bottom: 20px;"></i>
+                    <h4 style="color: var(--text-primary); font-size: 1.2rem; margin-bottom: 10px;">Recipe Management</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Link ingredients to this product for inventory tracking.<br>This feature is coming in the next update.</p>
+                </div>
+                
+                <div class="manager-footer">
+                    <button class="btn-modern btn-modern-cancel" onclick="closeModal('advanced-menu-modal')">Cancel</button>
+                    <button class="btn-modern btn-modern-save" onclick="saveManagerItem()">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- RECEIPT -->
+<div id="receipt-print-area">
+    <style id="dynamic-print-styles"></style>
+    <div class="text-center" id="print-header-config"></div>
+    <div class="sep-dashed" id="sep-header"></div>
+    <div id="rec-meta-body"></div>
+    <div id="rec-customer-body"></div>
+    <table><thead><tr style="border-bottom: 1px dashed #000;"><th style="text-align:left;">Item</th><th style="text-align:center; width:30px;">Qty</th><th style="text-align:right; width:60px;" id="th-amt">Amt</th></tr></thead><tbody id="receipt-body"></tbody></table>
+    <div class="sep-dashed" id="sep-footer"></div>
+    <div id="rec-calculations"></div>
+    <div id="rec-payment-breakdown" class="payment-section"></div>
+    <div class="text-center" style="margin-top:15px; font-size:12px;" id="dynamic-print-footer"></div>
+    <div class="cut-feed">.</div>
+</div>
+
+<!-- Datalists for dynamic suggestions -->
+<datalist id="dl-clients"></datalist>
+<datalist id="dl-workers"></datalist>
+<datalist id="dl-tables"></datalist>
+<datalist id="dl-categories"></datalist>
+<datalist id="dl-items"></datalist>
+
+<!-- JavaScript Files -->
+<script src="state.js"></script>
+<script src="ui.js"></script>
+<script src="pos.js"></script>
+<script src="managers.js"></script>
+<script src="crm.js"></script>
+<script src="dashboard-history.js"></script>
+<script src="reports.js"></script>
+<script src="config.js"></script>
+
+</body>
+</html>
