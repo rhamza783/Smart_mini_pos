@@ -1,0 +1,1 @@
+# Smart_mini_pos
