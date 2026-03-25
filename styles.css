@@ -2,6 +2,21 @@
    SECTION: CSS VARIABLES & THEME ENGINE (WHITE SHADOWS REMOVED)
    ============================================================================= */
 
+/* ── BLOCK OS/BROWSER DARK MODE ─────────────────────────────────────────────
+   The POS has its own theme engine. We never want the OS or browser dark mode
+   to override our colours — inputs, selects, scrollbars, backgrounds etc.
+   The :root color-scheme:light below plus this media-query block ensures our
+   chosen theme always wins regardless of what the OS/browser preference is.
+─────────────────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light !important;
+    }
+    input, select, textarea, button {
+        color-scheme: light !important;
+    }
+}
+
 /* 1. DEFAULT LIGHT THEME */
 :root {
     color-scheme: light;
@@ -85,7 +100,7 @@
    2. DARK THEME 
 ============================================================================= */
 [data-theme="dark"] {
-    color-scheme: dark;
+    color-scheme: light; /* keep our own colour control, don't let browser add dark-mode overrides */
     --bg-app: #2a3344; 
     --text-primary: #e2e9ff; 
     --text-secondary: #98a9c7; 
@@ -106,7 +121,7 @@
    3. NEON THEME
 ============================================================================= */
 [data-theme="neon"] {
-    color-scheme: dark;
+    color-scheme: light; /* keep our own colour control */
     --bg-app: #10002B; 
     --text-primary: #FFFFFF; 
     --text-secondary: #E0AAFF; 
@@ -1389,59 +1404,6 @@ span.flatpickr-weekday {
     color: var(--col-primary) !important;
     font-weight: bold !important;
 }
-
-/* =============================================================================
-   FULLCALENDAR – THEME INTEGRATION
-   ============================================================================= */
-.fc {
-    background: var(--bg-app) !important;
-    color: var(--text-primary) !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-}
-.fc-toolbar-title {
-    color: var(--text-primary) !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-}
-.fc-button, .fc-button-primary {
-    background: var(--col-primary) !important;
-    border-color: var(--col-primary) !important;
-    color: #fff !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
-    text-transform: capitalize !important;
-}
-.fc-button:hover, .fc-button-primary:hover { opacity: 0.85 !important; }
-.fc-button-active, .fc-button-primary:not(:disabled).fc-button-active {
-    background: var(--col-secondary) !important;
-    border-color: var(--col-secondary) !important;
-}
-.fc-col-header, .fc-col-header-cell { background: var(--bg-app) !important; }
-.fc-col-header-cell-cushion {
-    color: var(--text-secondary) !important;
-    font-weight: 700 !important;
-    font-size: 0.8rem !important;
-    text-decoration: none !important;
-}
-.fc-daygrid-day, .fc-timegrid-slot, .fc-timegrid-col { background: var(--bg-app) !important; }
-.fc-daygrid-day-number { color: var(--text-primary) !important; text-decoration: none !important; }
-.fc-daygrid-day.fc-day-today, .fc-timegrid-col.fc-day-today { background: var(--col-primary-light) !important; }
-.fc-scrollgrid, .fc-scrollgrid-section > td, .fc-scrollgrid td, .fc-scrollgrid th {
-    border-color: var(--table-group-line-color) !important;
-}
-.fc-event {
-    border-radius: 6px !important;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    border: none !important;
-    padding: 2px 5px !important;
-}
-.fc-list-day-cushion { background: var(--col-primary-light) !important; color: var(--col-primary) !important; }
-.fc-timegrid-axis { color: var(--text-secondary) !important; font-size: 0.75rem !important; }
-.fc-timegrid-now-indicator-line { border-color: var(--col-primary) !important; }
-#reservation-calendar { background: var(--bg-app) !important; border-radius: 16px !important; padding: 10px !important; }
 
 /* =============================================================================
    EMPLOYEE MANAGEMENT – CASH BALANCE & LEDGER STYLES
