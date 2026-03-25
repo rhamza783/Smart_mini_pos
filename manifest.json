@@ -2,8 +2,10 @@
   "name": "AL-MADINA SHINWARI POS",
   "short_name": "POS",
   "description": "Restaurant Point of Sale System",
-  "start_url": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#E0E5EC",
   "theme_color": "#6750A4",
   "icons": [
