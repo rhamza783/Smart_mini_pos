@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AL-MADINA SHINWARI POS</title>
@@ -1033,14 +1033,8 @@ New Total: <span id="modal-disc-new-total" style="font-weight:bold; color:var(--
 <div id="res-tab-new" class="res-tab-content" style="padding:20px;">
 <div class="modern-form-grid">
 <div class="modern-input-group"><label>Date</label><input type="date" id="res-date" class="modern-input"></div>
-<div class="modern-input-group"><label>Start Time</label>
-<button type="button" id="res-start-btn" class="modern-input" style="text-align:left;cursor:pointer;background:var(--bg-app);box-shadow:var(--neumorph-out-sm);border:none;padding:12px 16px;border-radius:12px;font-size:1rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;" onclick="resOpenTimePicker('start')"><i class="fas fa-clock" style="color:var(--col-primary)"></i><span id="res-start-display">Select time</span></button>
-<input type="hidden" id="res-start" value="">
-</div>
-<div class="modern-input-group"><label>End Time <span style="font-size:0.75rem;color:var(--text-secondary)">(auto)</span></label>
-<button type="button" id="res-end-btn" class="modern-input" style="text-align:left;cursor:pointer;background:var(--bg-app);box-shadow:var(--neumorph-out-sm);border:none;padding:12px 16px;border-radius:12px;font-size:1rem;color:var(--text-secondary);display:flex;align-items:center;gap:8px;opacity:0.85;" onclick="resOpenTimePicker('end')"><i class="fas fa-clock" style="color:var(--text-secondary)"></i><span id="res-end-display">Auto calculated</span></button>
-<input type="hidden" id="res-end" value="">
-</div>
+<div class="modern-input-group"><label>Start Time</label><input type="time" id="res-start" class="modern-input"></div>
+<div class="modern-input-group"><label>End Time</label><input type="time" id="res-end" class="modern-input" readonly></div>
 <div class="modern-input-group"><label>Table</label><select id="res-table" class="modern-input"></select></div>
 <div class="modern-input-group"><label>People</label><input type="number" id="res-people" class="modern-input" min="1" value="2"></div>
 <div class="modern-input-group full-width"><label>Client</label>
@@ -1229,4 +1223,4 @@ navigator.serviceWorker.register('/sw.js')
 </script>
 
 </body>
-</html>
+        </html>
