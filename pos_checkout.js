@@ -263,7 +263,12 @@ function finishOrder() {
     });
     localStorage.setItem('orderHistory', JSON.stringify(app.history));
 
-    printBill(false, app.tempPayments);
+    try {
+        printBill(false, app.tempPayments);
+    } catch(printErr) {
+        console.error('printBill error (order still closed):', printErr);
+        showToast('Print failed — check receipt config. Order is closed.', 'err');
+    }
 
     delete app.orders[app.table];
     localStorage.setItem('savedOrders', JSON.stringify(app.orders));
@@ -407,6 +412,7 @@ function printBill(isKOT = true, payments = []) {
     if (!isKOT && appSettings.receiptTemplate) {
         // Template-based receipt
         const template = appSettings.receiptTemplate;
+        const totals = getOrderTotals(); // define totals locally for this path
         const data = {
             logo: appSettings.property.logo ? `<img src="${appSettings.property.logo}" style="max-width:150px;">` : '',
             restaurant_name: appSettings.property.name,
@@ -763,4 +769,4 @@ function executeMerge(targetName) {
         renderAllTables();
         showToast(`Order successfully merged into ${targetName}`);
     });
-}
+        }
