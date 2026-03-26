@@ -174,6 +174,8 @@
 
 <div class="header-bar">
 <h1 id="app-header-title">AL-MADINA SHINWARI POS</h1>
+<!-- Install button for PWA -->
+<button id="installBtn" class="nav-btn" style="display: none;" onclick="installPWA()">Install App</button>
 <div class="header-buttons" id="main-nav-buttons">
 <!-- Dynamic zone buttons injected here -->
 </div>
@@ -1232,17 +1234,50 @@ New Total: <span id="modal-disc-new-total" style="font-weight:bold; color:var(--
 <script src="inventory_db.js"></script>
 <script src="inventory_barcode.js"></script>
 
-<!-- Service Worker Registration -->
-
+<!-- Service Worker Registration & PWA Install Handler -->
 <script>
 if ('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('./sw.js')
-.then(reg => console.log('Service Worker registered:', reg.scope))
-.catch(err => console.error('Service Worker registration failed:', err));
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registered:', reg.scope))
+            .catch(err => console.error('Service Worker registration failed:', err));
+    });
+}
+
+// PWA Install Prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Show the install button
+    const installBtn = document.getElementById('installBtn');
+    if (installBtn) installBtn.style.display = 'inline-flex';
 });
+
+function installPWA() {
+    if (!deferredPrompt) {
+        showToast('Install prompt not available. Check if PWA criteria are met.', 'err');
+        return;
+    }
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+            showToast('App installed successfully!', 'ok');
+        } else {
+            console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+        // Hide the install button after prompt
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.style.display = 'none';
+    });
 }
 </script>
 
 </body>
-                </html>
+                        </html>
