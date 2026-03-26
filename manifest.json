@@ -2,23 +2,49 @@
   "name": "AL-MADINA SHINWARI POS",
   "short_name": "POS",
   "description": "Restaurant Point of Sale System",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#E0E5EC",
   "theme_color": "#6750A4",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "./Icons/android/launchericon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "./Icons/android/launchericon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "./Icons/android/launchericon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "./Icons/android/launchericon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "./Icons/android/launchericon-192x192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./Icons/android/launchericon-512x512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "./Icons/ios/1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
     }
   ]
 }
