@@ -11,7 +11,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="POS">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<!-- iOS / Apple Touch Icons -->
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/ios/152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/icons/ios/167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/ios/180.png">
+<!-- Optional: additional sizes for older devices -->
+<link rel="apple-touch-icon" sizes="120x120" href="/icons/ios/120.png">
+<link rel="apple-touch-icon" sizes="1024x1024" href="/icons/ios/1024.png">
+
+<!-- Windows / Microsoft Edge Tile -->
+<meta name="msapplication-TileColor" content="#6750A4">
+<meta name="msapplication-TileImage" content="/icons/windows/Square44x44Logo.targetsize-256.png">
+<meta name="msapplication-square44x44logo" content="/icons/windows/Square44x44Logo.targetsize-44.png">
+<meta name="msapplication-square70x70logo" content="/icons/windows/Square44x44Logo.targetsize-70.png">
+<meta name="msapplication-square150x150logo" content="/icons/windows/Square150x150Logo.scale-100.png">
+<meta name="msapplication-wide310x150logo" content="/icons/windows/Wide310x150Logo.scale-100.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <!-- Multiple Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700,800|Roboto:400,500,700|Poppins:400,500,600,700|Montserrat:400,500,600,700|Noto+Nastaliq+Urdu:wght@400..700&display=swap" rel="stylesheet">
@@ -1120,7 +1134,10 @@ New Total: <span id="modal-disc-new-total" style="font-weight:bold; color:var(--
 <div class="sep-dashed" id="sep-header"></div>
 <div id="rec-meta-body"></div>
 <div id="rec-customer-body"></div>
-<table><thead><tr style="border-bottom: 1px dashed #000;"><th style="text-align:left;">Item</th><th style="text-align:center; width:30px;">Qty</th><th style="text-align:right; width:60px;" id="th-amt">Amt</th></tr></thead><tbody id="receipt-body"></tbody></table>
+<!-- KEEP ONLY THIS -->
+<table id="receipt-body-wrapper">
+    <tbody id="receipt-body"></tbody>
+</table>
 <div class="sep-dashed" id="sep-footer"></div>
 <div id="rec-calculations"></div>
 <div id="rec-payment-breakdown" class="payment-section"></div>
@@ -1228,4 +1245,4 @@ navigator.serviceWorker.register('./sw.js')
 </script>
 
 </body>
-                            </html>
+                </html>
