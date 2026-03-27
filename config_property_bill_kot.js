@@ -6,10 +6,12 @@
 
 function getPropertyConfigFromDOM() {
     return {
-        name: document.getElementById('prop-name')?.value || 'AL-MADINA SHINWARI',
-        phone: document.getElementById('prop-phone')?.value || '0341-3334206',
-        address: document.getElementById('prop-address')?.value || 'Main Gujranwala, Hafizabad Road',
-        logo: document.getElementById('prop-logo-base64')?.value || ''
+        name:      document.getElementById('prop-name')?.value || 'AL-MADINA SHINWARI',
+        phone:     document.getElementById('prop-phone')?.value || '0341-3334206',
+        address:   document.getElementById('prop-address')?.value || 'Main Gujranwala, Hafizabad Road',
+        logo:      document.getElementById('prop-logo-base64')?.value || '',
+        logoWidth: document.getElementById('prop-logo-width')?.value || appSettings.property.logoWidth || '80px',
+        branch:    document.getElementById('prop-branch')?.value || ''
     };
 }
 
@@ -43,84 +45,169 @@ function updatePrintPreview(type) {
     let bs = {};
     if (isBill) {
         bs = {
-            headerFontSize: document.getElementById('bc-header-size')?.value || '16px',
+            // ── Legacy unified header (kept as fallback) ──
+            headerFontSize:   document.getElementById('bc-header-size')?.value || '16px',
             headerFontFamily: document.getElementById('bc-header-font-family')?.value || 'sans-serif',
-            headerFontStyle: document.getElementById('bc-header-font-style')?.value || 'normal',
-            itemNameFontSize: document.getElementById('bc-item-name-size')?.value || '12px',
+            headerFontStyle:  document.getElementById('bc-header-font-style')?.value || 'normal',
+            // ── Separate Restaurant Name ──
+            restaurantNameFontSize:   document.getElementById('bc-rest-name-size')?.value || '18px',
+            restaurantNameFontFamily: document.getElementById('bc-rest-name-font-family')?.value || 'sans-serif',
+            restaurantNameFontStyle:  document.getElementById('bc-rest-name-font-style')?.value || 'bold',
+            // ── Separate Restaurant Address ──
+            restaurantAddrFontSize:   document.getElementById('bc-rest-addr-size')?.value || '12px',
+            restaurantAddrFontFamily: document.getElementById('bc-rest-addr-font-family')?.value || 'sans-serif',
+            restaurantAddrFontStyle:  document.getElementById('bc-rest-addr-font-style')?.value || 'normal',
+            // ── Separate Restaurant Phone ──
+            restaurantPhoneFontSize:   document.getElementById('bc-rest-phone-size')?.value || '12px',
+            restaurantPhoneFontFamily: document.getElementById('bc-rest-phone-font-family')?.value || 'sans-serif',
+            restaurantPhoneFontStyle:  document.getElementById('bc-rest-phone-font-style')?.value || 'normal',
+            // ── Logo ──
+            logoWidth: document.getElementById('bc-logo-width')?.value || appSettings.property.logoWidth || '80px',
+            // ── Item rows ──
+            itemNameFontSize:   document.getElementById('bc-item-name-size')?.value || '12px',
             itemNameFontFamily: document.getElementById('bc-item-name-font-family')?.value || 'sans-serif',
-            itemNameFontStyle: document.getElementById('bc-item-name-font-style')?.value || 'normal',
-            itemPriceFontSize: document.getElementById('bc-item-price-size')?.value || '12px',
+            itemNameFontStyle:  document.getElementById('bc-item-name-font-style')?.value || 'normal',
+            itemPriceFontSize:   document.getElementById('bc-item-price-size')?.value || '12px',
             itemPriceFontFamily: document.getElementById('bc-item-price-font-family')?.value || 'sans-serif',
-            itemPriceFontStyle: document.getElementById('bc-item-price-font-style')?.value || 'normal',
-            totalBoxFontSize: document.getElementById('bc-total-box-size')?.value || '16px',
+            itemPriceFontStyle:  document.getElementById('bc-item-price-font-style')?.value || 'normal',
+            totalBoxFontSize:   document.getElementById('bc-total-box-size')?.value || '16px',
             totalBoxFontFamily: document.getElementById('bc-total-box-font-family')?.value || 'sans-serif',
-            totalBoxFontStyle: document.getElementById('bc-total-box-font-style')?.value || 'bold',
-            footerFontSize: document.getElementById('bc-footer-size')?.value || '12px',
+            totalBoxFontStyle:  document.getElementById('bc-total-box-font-style')?.value || 'bold',
+            footerFontSize:   document.getElementById('bc-footer-size')?.value || '12px',
             footerFontFamily: document.getElementById('bc-footer-font-family')?.value || 'sans-serif',
-            footerFontStyle: document.getElementById('bc-footer-font-style')?.value || 'normal',
-            // NEW fields
-            dateHeadingFontSize: document.getElementById('bc-date-head-size')?.value || '12px',
+            footerFontStyle:  document.getElementById('bc-footer-font-style')?.value || 'normal',
+            // ── Meta rows ──
+            dateHeadingFontSize:   document.getElementById('bc-date-head-size')?.value || '12px',
             dateHeadingFontFamily: document.getElementById('bc-date-head-font-family')?.value || 'sans-serif',
-            dateHeadingFontStyle: document.getElementById('bc-date-head-font-style')?.value || 'normal',
-            dateValueFontSize: document.getElementById('bc-date-value-size')?.value || '12px',
+            dateHeadingFontStyle:  document.getElementById('bc-date-head-font-style')?.value || 'normal',
+            dateValueFontSize:   document.getElementById('bc-date-value-size')?.value || '12px',
             dateValueFontFamily: document.getElementById('bc-date-value-font-family')?.value || 'sans-serif',
-            dateValueFontStyle: document.getElementById('bc-date-value-font-style')?.value || 'normal',
-            timeHeadingFontSize: document.getElementById('bc-time-head-size')?.value || '12px',
+            dateValueFontStyle:  document.getElementById('bc-date-value-font-style')?.value || 'normal',
+            timeHeadingFontSize:   document.getElementById('bc-time-head-size')?.value || '12px',
             timeHeadingFontFamily: document.getElementById('bc-time-head-font-family')?.value || 'sans-serif',
-            timeHeadingFontStyle: document.getElementById('bc-time-head-font-style')?.value || 'normal',
-            timeValueFontSize: document.getElementById('bc-time-value-size')?.value || '12px',
+            timeHeadingFontStyle:  document.getElementById('bc-time-head-font-style')?.value || 'normal',
+            timeValueFontSize:   document.getElementById('bc-time-value-size')?.value || '12px',
             timeValueFontFamily: document.getElementById('bc-time-value-font-family')?.value || 'sans-serif',
-            timeValueFontStyle: document.getElementById('bc-time-value-font-style')?.value || 'normal',
-            orderHeadingFontSize: document.getElementById('bc-order-head-size')?.value || '12px',
+            timeValueFontStyle:  document.getElementById('bc-time-value-font-style')?.value || 'normal',
+            orderHeadingFontSize:   document.getElementById('bc-order-head-size')?.value || '12px',
             orderHeadingFontFamily: document.getElementById('bc-order-head-font-family')?.value || 'sans-serif',
-            orderHeadingFontStyle: document.getElementById('bc-order-head-font-style')?.value || 'normal',
-            orderValueFontSize: document.getElementById('bc-order-value-size')?.value || '12px',
+            orderHeadingFontStyle:  document.getElementById('bc-order-head-font-style')?.value || 'normal',
+            orderValueFontSize:   document.getElementById('bc-order-value-size')?.value || '12px',
             orderValueFontFamily: document.getElementById('bc-order-value-font-family')?.value || 'sans-serif',
-            orderValueFontStyle: document.getElementById('bc-order-value-font-style')?.value || 'normal',
-            tableHeadingFontSize: document.getElementById('bc-table-head-size')?.value || '12px',
+            orderValueFontStyle:  document.getElementById('bc-order-value-font-style')?.value || 'normal',
+            tableHeadingFontSize:   document.getElementById('bc-table-head-size')?.value || '12px',
             tableHeadingFontFamily: document.getElementById('bc-table-head-font-family')?.value || 'sans-serif',
-            tableHeadingFontStyle: document.getElementById('bc-table-head-font-style')?.value || 'normal',
-            tableValueFontSize: document.getElementById('bc-table-value-size')?.value || '12px',
+            tableHeadingFontStyle:  document.getElementById('bc-table-head-font-style')?.value || 'normal',
+            tableValueFontSize:   document.getElementById('bc-table-value-size')?.value || '12px',
             tableValueFontFamily: document.getElementById('bc-table-value-font-family')?.value || 'sans-serif',
-            tableValueFontStyle: document.getElementById('bc-table-value-font-style')?.value || 'normal',
-            cashierHeadingFontSize: document.getElementById('bc-cashier-head-size')?.value || '12px',
+            tableValueFontStyle:  document.getElementById('bc-table-value-font-style')?.value || 'normal',
+            cashierHeadingFontSize:   document.getElementById('bc-cashier-head-size')?.value || '12px',
             cashierHeadingFontFamily: document.getElementById('bc-cashier-head-font-family')?.value || 'sans-serif',
-            cashierHeadingFontStyle: document.getElementById('bc-cashier-head-font-style')?.value || 'normal',
-            cashierValueFontSize: document.getElementById('bc-cashier-value-size')?.value || '12px',
+            cashierHeadingFontStyle:  document.getElementById('bc-cashier-head-font-style')?.value || 'normal',
+            cashierValueFontSize:   document.getElementById('bc-cashier-value-size')?.value || '12px',
             cashierValueFontFamily: document.getElementById('bc-cashier-value-font-family')?.value || 'sans-serif',
-            cashierValueFontStyle: document.getElementById('bc-cashier-value-font-style')?.value || 'normal',
-            serverHeadingFontSize: document.getElementById('bc-server-head-size')?.value || '12px',
+            cashierValueFontStyle:  document.getElementById('bc-cashier-value-font-style')?.value || 'normal',
+            serverHeadingFontSize:   document.getElementById('bc-server-head-size')?.value || '12px',
             serverHeadingFontFamily: document.getElementById('bc-server-head-font-family')?.value || 'sans-serif',
-            serverHeadingFontStyle: document.getElementById('bc-server-head-font-style')?.value || 'normal',
-            serverValueFontSize: document.getElementById('bc-server-value-size')?.value || '12px',
+            serverHeadingFontStyle:  document.getElementById('bc-server-head-font-style')?.value || 'normal',
+            serverValueFontSize:   document.getElementById('bc-server-value-size')?.value || '12px',
             serverValueFontFamily: document.getElementById('bc-server-value-font-family')?.value || 'sans-serif',
-            serverValueFontStyle: document.getElementById('bc-server-value-font-style')?.value || 'normal',
-            qtyNumberFontSize: document.getElementById('bc-qty-size')?.value || '12px',
+            serverValueFontStyle:  document.getElementById('bc-server-value-font-style')?.value || 'normal',
+            qtyNumberFontSize:   document.getElementById('bc-qty-size')?.value || '12px',
             qtyNumberFontFamily: document.getElementById('bc-qty-font-family')?.value || 'sans-serif',
-            qtyNumberFontStyle: document.getElementById('bc-qty-font-style')?.value || 'normal',
-            discountFontSize: document.getElementById('bc-discount-size')?.value || '12px',
+            qtyNumberFontStyle:  document.getElementById('bc-qty-font-style')?.value || 'normal',
+            discountFontSize:   document.getElementById('bc-discount-size')?.value || '12px',
             discountFontFamily: document.getElementById('bc-discount-font-family')?.value || 'sans-serif',
-            discountFontStyle: document.getElementById('bc-discount-font-style')?.value || 'normal',
-            taxFontSize: document.getElementById('bc-tax-size')?.value || '12px',
+            discountFontStyle:  document.getElementById('bc-discount-font-style')?.value || 'normal',
+            taxFontSize:   document.getElementById('bc-tax-size')?.value || '12px',
             taxFontFamily: document.getElementById('bc-tax-font-family')?.value || 'sans-serif',
-            taxFontStyle: document.getElementById('bc-tax-font-style')?.value || 'normal',
-            subtotalFontSize: document.getElementById('bc-subtotal-size')?.value || '12px',
+            taxFontStyle:  document.getElementById('bc-tax-font-style')?.value || 'normal',
+            subtotalFontSize:   document.getElementById('bc-subtotal-size')?.value || '12px',
             subtotalFontFamily: document.getElementById('bc-subtotal-font-family')?.value || 'sans-serif',
-            subtotalFontStyle: document.getElementById('bc-subtotal-font-style')?.value || 'normal',
-            thanksFontSize: document.getElementById('bc-thanks-size')?.value || '12px',
+            subtotalFontStyle:  document.getElementById('bc-subtotal-font-style')?.value || 'normal',
+            thanksFontSize:   document.getElementById('bc-thanks-size')?.value || '12px',
             thanksFontFamily: document.getElementById('bc-thanks-font-family')?.value || 'sans-serif',
-            thanksFontStyle: document.getElementById('bc-thanks-font-style')?.value || 'normal'
+            thanksFontStyle:  document.getElementById('bc-thanks-font-style')?.value || 'normal'
         };
     } else {
+        // KOT — read from DOM (same pattern with kot- prefix)
         bs = {
-            headerFontSize: '16px', headerFontFamily: 'monospace', headerFontStyle: 'bold',
-            itemNameFontSize: '12px', itemNameFontFamily: 'monospace', itemNameFontStyle: 'normal',
-            itemPriceFontSize: '12px', itemPriceFontFamily: 'monospace', itemPriceFontStyle: 'normal',
-            totalBoxFontSize: '16px', totalBoxFontFamily: 'monospace', totalBoxFontStyle: 'bold',
-            footerFontSize: '12px', footerFontFamily: 'monospace', footerFontStyle: 'normal',
-            // Similarly add all new fields for KOT (using kot- IDs)
-            // For brevity, we'll assume similar fields with kot- prefix.
-            // You would read them analogously.
+            restaurantNameFontSize:   document.getElementById('kot-rest-name-size')?.value || '18px',
+            restaurantNameFontFamily: document.getElementById('kot-rest-name-font-family')?.value || 'sans-serif',
+            restaurantNameFontStyle:  document.getElementById('kot-rest-name-font-style')?.value || 'bold',
+            restaurantAddrFontSize:   document.getElementById('kot-rest-addr-size')?.value || '12px',
+            restaurantAddrFontFamily: document.getElementById('kot-rest-addr-font-family')?.value || 'sans-serif',
+            restaurantAddrFontStyle:  document.getElementById('kot-rest-addr-font-style')?.value || 'normal',
+            restaurantPhoneFontSize:   document.getElementById('kot-rest-phone-size')?.value || '12px',
+            restaurantPhoneFontFamily: document.getElementById('kot-rest-phone-font-family')?.value || 'sans-serif',
+            restaurantPhoneFontStyle:  document.getElementById('kot-rest-phone-font-style')?.value || 'normal',
+            logoWidth: document.getElementById('kot-logo-width')?.value || appSettings.property.logoWidth || '80px',
+            headerFontSize:   document.getElementById('kot-header-size')?.value || '16px',
+            headerFontFamily: document.getElementById('kot-header-font-family')?.value || 'monospace',
+            headerFontStyle:  document.getElementById('kot-header-font-style')?.value || 'bold',
+            itemNameFontSize:   document.getElementById('kot-item-name-size')?.value || '12px',
+            itemNameFontFamily: document.getElementById('kot-item-name-font-family')?.value || 'monospace',
+            itemNameFontStyle:  document.getElementById('kot-item-name-font-style')?.value || 'normal',
+            itemPriceFontSize:   document.getElementById('kot-item-price-size')?.value || '12px',
+            itemPriceFontFamily: document.getElementById('kot-item-price-font-family')?.value || 'monospace',
+            itemPriceFontStyle:  document.getElementById('kot-item-price-font-style')?.value || 'normal',
+            totalBoxFontSize:   document.getElementById('kot-total-box-size')?.value || '16px',
+            totalBoxFontFamily: document.getElementById('kot-total-box-font-family')?.value || 'monospace',
+            totalBoxFontStyle:  document.getElementById('kot-total-box-font-style')?.value || 'bold',
+            footerFontSize:   document.getElementById('kot-footer-size')?.value || '12px',
+            footerFontFamily: document.getElementById('kot-footer-font-family')?.value || 'monospace',
+            footerFontStyle:  document.getElementById('kot-footer-font-style')?.value || 'normal',
+            dateHeadingFontSize:   document.getElementById('kot-date-head-size')?.value || '12px',
+            dateHeadingFontFamily: document.getElementById('kot-date-head-font-family')?.value || 'monospace',
+            dateHeadingFontStyle:  document.getElementById('kot-date-head-font-style')?.value || 'normal',
+            dateValueFontSize:   document.getElementById('kot-date-value-size')?.value || '12px',
+            dateValueFontFamily: document.getElementById('kot-date-value-font-family')?.value || 'monospace',
+            dateValueFontStyle:  document.getElementById('kot-date-value-font-style')?.value || 'normal',
+            timeHeadingFontSize:   document.getElementById('kot-time-head-size')?.value || '12px',
+            timeHeadingFontFamily: document.getElementById('kot-time-head-font-family')?.value || 'monospace',
+            timeHeadingFontStyle:  document.getElementById('kot-time-head-font-style')?.value || 'normal',
+            timeValueFontSize:   document.getElementById('kot-time-value-size')?.value || '12px',
+            timeValueFontFamily: document.getElementById('kot-time-value-font-family')?.value || 'monospace',
+            timeValueFontStyle:  document.getElementById('kot-time-value-font-style')?.value || 'normal',
+            orderHeadingFontSize:   document.getElementById('kot-order-head-size')?.value || '12px',
+            orderHeadingFontFamily: document.getElementById('kot-order-head-font-family')?.value || 'monospace',
+            orderHeadingFontStyle:  document.getElementById('kot-order-head-font-style')?.value || 'normal',
+            orderValueFontSize:   document.getElementById('kot-order-value-size')?.value || '12px',
+            orderValueFontFamily: document.getElementById('kot-order-value-font-family')?.value || 'monospace',
+            orderValueFontStyle:  document.getElementById('kot-order-value-font-style')?.value || 'normal',
+            tableHeadingFontSize:   document.getElementById('kot-table-head-size')?.value || '12px',
+            tableHeadingFontFamily: document.getElementById('kot-table-head-font-family')?.value || 'monospace',
+            tableHeadingFontStyle:  document.getElementById('kot-table-head-font-style')?.value || 'normal',
+            tableValueFontSize:   document.getElementById('kot-table-value-size')?.value || '12px',
+            tableValueFontFamily: document.getElementById('kot-table-value-font-family')?.value || 'monospace',
+            tableValueFontStyle:  document.getElementById('kot-table-value-font-style')?.value || 'normal',
+            cashierHeadingFontSize:   document.getElementById('kot-cashier-head-size')?.value || '12px',
+            cashierHeadingFontFamily: document.getElementById('kot-cashier-head-font-family')?.value || 'monospace',
+            cashierHeadingFontStyle:  document.getElementById('kot-cashier-head-font-style')?.value || 'normal',
+            cashierValueFontSize:   document.getElementById('kot-cashier-value-size')?.value || '12px',
+            cashierValueFontFamily: document.getElementById('kot-cashier-value-font-family')?.value || 'monospace',
+            cashierValueFontStyle:  document.getElementById('kot-cashier-value-font-style')?.value || 'normal',
+            serverHeadingFontSize:   document.getElementById('kot-server-head-size')?.value || '12px',
+            serverHeadingFontFamily: document.getElementById('kot-server-head-font-family')?.value || 'monospace',
+            serverHeadingFontStyle:  document.getElementById('kot-server-head-font-style')?.value || 'normal',
+            serverValueFontSize:   document.getElementById('kot-server-value-size')?.value || '12px',
+            serverValueFontFamily: document.getElementById('kot-server-value-font-family')?.value || 'monospace',
+            serverValueFontStyle:  document.getElementById('kot-server-value-font-style')?.value || 'normal',
+            qtyNumberFontSize:   document.getElementById('kot-qty-size')?.value || '12px',
+            qtyNumberFontFamily: document.getElementById('kot-qty-font-family')?.value || 'monospace',
+            qtyNumberFontStyle:  document.getElementById('kot-qty-font-style')?.value || 'normal',
+            discountFontSize:   document.getElementById('kot-discount-size')?.value || '12px',
+            discountFontFamily: document.getElementById('kot-discount-font-family')?.value || 'monospace',
+            discountFontStyle:  document.getElementById('kot-discount-font-style')?.value || 'normal',
+            taxFontSize:   document.getElementById('kot-tax-size')?.value || '12px',
+            taxFontFamily: document.getElementById('kot-tax-font-family')?.value || 'monospace',
+            taxFontStyle:  document.getElementById('kot-tax-font-style')?.value || 'normal',
+            subtotalFontSize:   document.getElementById('kot-subtotal-size')?.value || '12px',
+            subtotalFontFamily: document.getElementById('kot-subtotal-font-family')?.value || 'monospace',
+            subtotalFontStyle:  document.getElementById('kot-subtotal-font-style')?.value || 'normal',
+            thanksFontSize:   document.getElementById('kot-thanks-size')?.value || '12px',
+            thanksFontFamily: document.getElementById('kot-thanks-font-family')?.value || 'monospace',
+            thanksFontStyle:  document.getElementById('kot-thanks-font-style')?.value || 'normal'
         };
     }
 
@@ -150,13 +237,17 @@ function updatePrintPreview(type) {
     sampleHtml += `<div style="line-height: 1.2; width: 100%; max-width: 200px; margin: 0 auto; border: 1px dashed #ccc; padding: 5px; color: black; background-color: white; font-family: monospace;">`;
 
     if (config.printLogo && propConfig.logo) {
-        sampleHtml += `<div style="text-align: center; margin-bottom: 5px;"><img src="${propConfig.logo}" style="max-width: 60px; height: auto; border-radius: 4px; opacity: 0.7;"></div>`;
+        const lw = bs.logoWidth || propConfig.logoWidth || '80px';
+        sampleHtml += `<div style="text-align: center; margin-bottom: 5px;"><img src="${propConfig.logo}" style="width:${lw}; max-width:100%; height: auto; border-radius: 4px;"></div>`;
     }
     if (config.printPropInfo) {
-        sampleHtml += `<div style="text-align: center; font-weight: bold; font-size: ${bs.headerFontSize}; font-family: '${bs.headerFontFamily}', monospace; font-style: ${bs.headerFontStyle};">${propConfig.name}</div>`;
-        sampleHtml += `<div style="text-align: center; font-size: ${bs.headerFontSize}; font-family: '${bs.headerFontFamily}', monospace; font-style: ${bs.headerFontStyle};" >${propConfig.address}</div>`;
-        if (propConfig.phone) sampleHtml += `<div style="text-align: center; font-size: ${bs.headerFontSize}; font-family: '${bs.headerFontFamily}', monospace; font-style: ${bs.headerFontStyle};">Tel: ${propConfig.phone}</div>`;
-        if (propConfig.branch) sampleHtml += `<div style="text-align: center; font-size: ${bs.headerFontSize}; font-family: '${bs.headerFontFamily}', monospace; font-style: ${bs.headerFontStyle};">Branch: ${propConfig.branch}</div>`;
+        const nameStyle  = `font-weight:bold; font-size:${bs.restaurantNameFontSize||bs.headerFontSize||'18px'}; font-family:'${bs.restaurantNameFontFamily||bs.headerFontFamily||'sans-serif'}',monospace; font-style:${bs.restaurantNameFontStyle||bs.headerFontStyle||'bold'};`;
+        const addrStyle  = `font-size:${bs.restaurantAddrFontSize||bs.headerFontSize||'12px'}; font-family:'${bs.restaurantAddrFontFamily||bs.headerFontFamily||'sans-serif'}',monospace; font-style:${bs.restaurantAddrFontStyle||bs.headerFontStyle||'normal'};`;
+        const phoneStyle = `font-size:${bs.restaurantPhoneFontSize||bs.headerFontSize||'12px'}; font-family:'${bs.restaurantPhoneFontFamily||bs.headerFontFamily||'sans-serif'}',monospace; font-style:${bs.restaurantPhoneFontStyle||bs.headerFontStyle||'normal'};`;
+        sampleHtml += `<div style="text-align: center; ${nameStyle}">${propConfig.name}</div>`;
+        sampleHtml += `<div style="text-align: center; ${addrStyle}">${propConfig.address}</div>`;
+        if (propConfig.phone)  sampleHtml += `<div style="text-align: center; ${phoneStyle}">Tel: ${propConfig.phone}</div>`;
+        if (propConfig.branch) sampleHtml += `<div style="text-align: center; ${addrStyle}">Branch: ${propConfig.branch}</div>`;
     }
     sampleHtml += `---<br>`;
 
@@ -314,6 +405,7 @@ function saveConfigProperty() {
     appSettings.property.openingTime = document.getElementById('prop-open').value;
     appSettings.property.closingTime = document.getElementById('prop-close').value;
     appSettings.property.logo = document.getElementById('prop-logo-base64').value;
+    appSettings.property.logoWidth = document.getElementById('prop-logo-width')?.value || '80px';
     localStorage.setItem('pos_app_settings', JSON.stringify(appSettings));
     if (typeof applyPreferences === 'function') applyPreferences();
     showToast("Properties Saved");
@@ -338,6 +430,21 @@ function saveBillConfig() {
     bc.customFooter = document.getElementById('bill-footer').value;
 
     const bs = bc.printStyles;
+
+    // ── Logo width ──
+    bc.logoWidth = document.getElementById('bc-logo-width')?.value || '80px';
+
+    // ── Separate Restaurant Name / Address / Phone ──
+    bs.restaurantNameFontSize   = document.getElementById('bc-rest-name-size')?.value || '18px';
+    bs.restaurantNameFontFamily = document.getElementById('bc-rest-name-font-family')?.value || 'sans-serif';
+    bs.restaurantNameFontStyle  = document.getElementById('bc-rest-name-font-style')?.value || 'bold';
+    bs.restaurantAddrFontSize   = document.getElementById('bc-rest-addr-size')?.value || '12px';
+    bs.restaurantAddrFontFamily = document.getElementById('bc-rest-addr-font-family')?.value || 'sans-serif';
+    bs.restaurantAddrFontStyle  = document.getElementById('bc-rest-addr-font-style')?.value || 'normal';
+    bs.restaurantPhoneFontSize   = document.getElementById('bc-rest-phone-size')?.value || '12px';
+    bs.restaurantPhoneFontFamily = document.getElementById('bc-rest-phone-font-family')?.value || 'sans-serif';
+    bs.restaurantPhoneFontStyle  = document.getElementById('bc-rest-phone-font-style')?.value || 'normal';
+
     bs.headerFontSize = document.getElementById('bc-header-size').value;
     bs.headerFontFamily = document.getElementById('bc-header-font-family').value;
     bs.headerFontStyle = document.getElementById('bc-header-font-style').value;
@@ -428,26 +535,116 @@ function saveBillConfig() {
 
 function saveKotConfig() {
     const kotC = appSettings.kotConfig;
-    kotC.printLogo = document.getElementById('kot-logo').checked;
-    kotC.printPropInfo = document.getElementById('kot-prop').checked;
-    kotC.printInvoiceNo = document.getElementById('kot-inv').checked;
-    kotC.printStartTime = document.getElementById('kot-st').checked;
-    kotC.printPrintTime = document.getElementById('kot-pt').checked;
-    kotC.printWaiter = document.getElementById('kot-waiter').checked;
-    kotC.printCashier = document.getElementById('kot-cashier').checked;
-    kotC.printCustomer = document.getElementById('kot-cust').checked;
-    kotC.printBreakdown = document.getElementById('kot-break').checked;
-    kotC.printPayments = document.getElementById('kot-pay').checked;
-    kotC.printNameLang = document.getElementById('kot-item-lang').value;
-
-    kotC.customFooter = document.getElementById('kot-footer').value;
+    kotC.printLogo       = document.getElementById('kot-logo').checked;
+    kotC.printPropInfo   = document.getElementById('kot-prop').checked;
+    kotC.printInvoiceNo  = document.getElementById('kot-inv').checked;
+    kotC.printStartTime  = document.getElementById('kot-st').checked;
+    kotC.printPrintTime  = document.getElementById('kot-pt').checked;
+    kotC.printWaiter     = document.getElementById('kot-waiter').checked;
+    kotC.printCashier    = document.getElementById('kot-cashier').checked;
+    kotC.printCustomer   = document.getElementById('kot-cust').checked;
+    kotC.printBreakdown  = document.getElementById('kot-break').checked;
+    kotC.printPayments   = document.getElementById('kot-pay').checked;
+    kotC.printNameLang   = document.getElementById('kot-item-lang').value;
+    kotC.customFooter    = document.getElementById('kot-footer').value;
+    kotC.logoWidth       = document.getElementById('kot-logo-width')?.value || '80px';
 
     const ks = kotC.printStyles;
-    // Read all corresponding kot- fields (similar to bill)
-    // For brevity, we assume you will add them analogously.
-    // ...
+
+    // ── Separate Restaurant Name / Address / Phone ──
+    ks.restaurantNameFontSize   = document.getElementById('kot-rest-name-size')?.value || '18px';
+    ks.restaurantNameFontFamily = document.getElementById('kot-rest-name-font-family')?.value || 'sans-serif';
+    ks.restaurantNameFontStyle  = document.getElementById('kot-rest-name-font-style')?.value || 'bold';
+    ks.restaurantAddrFontSize   = document.getElementById('kot-rest-addr-size')?.value || '12px';
+    ks.restaurantAddrFontFamily = document.getElementById('kot-rest-addr-font-family')?.value || 'sans-serif';
+    ks.restaurantAddrFontStyle  = document.getElementById('kot-rest-addr-font-style')?.value || 'normal';
+    ks.restaurantPhoneFontSize   = document.getElementById('kot-rest-phone-size')?.value || '12px';
+    ks.restaurantPhoneFontFamily = document.getElementById('kot-rest-phone-font-family')?.value || 'sans-serif';
+    ks.restaurantPhoneFontStyle  = document.getElementById('kot-rest-phone-font-style')?.value || 'normal';
+
+    ks.headerFontSize   = document.getElementById('kot-header-size').value;
+    ks.headerFontFamily = document.getElementById('kot-header-font-family').value;
+    ks.headerFontStyle  = document.getElementById('kot-header-font-style').value;
+
+    ks.itemNameFontSize   = document.getElementById('kot-item-name-size').value;
+    ks.itemNameFontFamily = document.getElementById('kot-item-name-font-family').value;
+    ks.itemNameFontStyle  = document.getElementById('kot-item-name-font-style').value;
+
+    ks.itemPriceFontSize   = document.getElementById('kot-item-price-size').value;
+    ks.itemPriceFontFamily = document.getElementById('kot-item-price-font-family').value;
+    ks.itemPriceFontStyle  = document.getElementById('kot-item-price-font-style').value;
+
+    ks.totalBoxFontSize   = document.getElementById('kot-total-box-size').value;
+    ks.totalBoxFontFamily = document.getElementById('kot-total-box-font-family').value;
+    ks.totalBoxFontStyle  = document.getElementById('kot-total-box-font-style').value;
+
+    ks.footerFontSize   = document.getElementById('kot-footer-size').value;
+    ks.footerFontFamily = document.getElementById('kot-footer-font-family').value;
+    ks.footerFontStyle  = document.getElementById('kot-footer-font-style').value;
+
+    ks.dateHeadingFontSize   = document.getElementById('kot-date-head-size').value;
+    ks.dateHeadingFontFamily = document.getElementById('kot-date-head-font-family').value;
+    ks.dateHeadingFontStyle  = document.getElementById('kot-date-head-font-style').value;
+    ks.dateValueFontSize   = document.getElementById('kot-date-value-size').value;
+    ks.dateValueFontFamily = document.getElementById('kot-date-value-font-family').value;
+    ks.dateValueFontStyle  = document.getElementById('kot-date-value-font-style').value;
+
+    ks.timeHeadingFontSize   = document.getElementById('kot-time-head-size').value;
+    ks.timeHeadingFontFamily = document.getElementById('kot-time-head-font-family').value;
+    ks.timeHeadingFontStyle  = document.getElementById('kot-time-head-font-style').value;
+    ks.timeValueFontSize   = document.getElementById('kot-time-value-size').value;
+    ks.timeValueFontFamily = document.getElementById('kot-time-value-font-family').value;
+    ks.timeValueFontStyle  = document.getElementById('kot-time-value-font-style').value;
+
+    ks.orderHeadingFontSize   = document.getElementById('kot-order-head-size').value;
+    ks.orderHeadingFontFamily = document.getElementById('kot-order-head-font-family').value;
+    ks.orderHeadingFontStyle  = document.getElementById('kot-order-head-font-style').value;
+    ks.orderValueFontSize   = document.getElementById('kot-order-value-size').value;
+    ks.orderValueFontFamily = document.getElementById('kot-order-value-font-family').value;
+    ks.orderValueFontStyle  = document.getElementById('kot-order-value-font-style').value;
+
+    ks.tableHeadingFontSize   = document.getElementById('kot-table-head-size').value;
+    ks.tableHeadingFontFamily = document.getElementById('kot-table-head-font-family').value;
+    ks.tableHeadingFontStyle  = document.getElementById('kot-table-head-font-style').value;
+    ks.tableValueFontSize   = document.getElementById('kot-table-value-size').value;
+    ks.tableValueFontFamily = document.getElementById('kot-table-value-font-family').value;
+    ks.tableValueFontStyle  = document.getElementById('kot-table-value-font-style').value;
+
+    ks.cashierHeadingFontSize   = document.getElementById('kot-cashier-head-size').value;
+    ks.cashierHeadingFontFamily = document.getElementById('kot-cashier-head-font-family').value;
+    ks.cashierHeadingFontStyle  = document.getElementById('kot-cashier-head-font-style').value;
+    ks.cashierValueFontSize   = document.getElementById('kot-cashier-value-size').value;
+    ks.cashierValueFontFamily = document.getElementById('kot-cashier-value-font-family').value;
+    ks.cashierValueFontStyle  = document.getElementById('kot-cashier-value-font-style').value;
+
+    ks.serverHeadingFontSize   = document.getElementById('kot-server-head-size').value;
+    ks.serverHeadingFontFamily = document.getElementById('kot-server-head-font-family').value;
+    ks.serverHeadingFontStyle  = document.getElementById('kot-server-head-font-style').value;
+    ks.serverValueFontSize   = document.getElementById('kot-server-value-size').value;
+    ks.serverValueFontFamily = document.getElementById('kot-server-value-font-family').value;
+    ks.serverValueFontStyle  = document.getElementById('kot-server-value-font-style').value;
+
+    ks.qtyNumberFontSize   = document.getElementById('kot-qty-size').value;
+    ks.qtyNumberFontFamily = document.getElementById('kot-qty-font-family').value;
+    ks.qtyNumberFontStyle  = document.getElementById('kot-qty-font-style').value;
+
+    ks.discountFontSize   = document.getElementById('kot-discount-size').value;
+    ks.discountFontFamily = document.getElementById('kot-discount-font-family').value;
+    ks.discountFontStyle  = document.getElementById('kot-discount-font-style').value;
+
+    ks.taxFontSize   = document.getElementById('kot-tax-size').value;
+    ks.taxFontFamily = document.getElementById('kot-tax-font-family').value;
+    ks.taxFontStyle  = document.getElementById('kot-tax-font-style').value;
+
+    ks.subtotalFontSize   = document.getElementById('kot-subtotal-size').value;
+    ks.subtotalFontFamily = document.getElementById('kot-subtotal-font-family').value;
+    ks.subtotalFontStyle  = document.getElementById('kot-subtotal-font-style').value;
+
+    ks.thanksFontSize   = document.getElementById('kot-thanks-size').value;
+    ks.thanksFontFamily = document.getElementById('kot-thanks-font-family').value;
+    ks.thanksFontStyle  = document.getElementById('kot-thanks-font-style').value;
 
     localStorage.setItem('pos_app_settings', JSON.stringify(appSettings));
     showToast("KOT Format Saved");
     updatePrintPreview('kot');
-}
+            }
