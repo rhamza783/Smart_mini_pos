@@ -647,4 +647,4 @@ function saveKotConfig() {
     localStorage.setItem('pos_app_settings', JSON.stringify(appSettings));
     showToast("KOT Format Saved");
     updatePrintPreview('kot');
-}
+            }
