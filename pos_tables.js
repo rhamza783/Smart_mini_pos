@@ -91,8 +91,17 @@ function renderAllTables() {
     document.body.appendChild(textMeasureDiv);
     
     tableLayout.forEach((zone) => {
+        // Map zone id/name → settings key (dinein / takeaway / delivery)
+        const _n = (zone.id + ' ' + zone.name).toLowerCase();
+        let _key = 'dinein';
+        if (_n.includes('take') || _n.includes('parcel') || _n.includes('pickup') || _n.includes('carry')) _key = 'takeaway';
+        else if (_n.includes('del') || _n.includes('rider') || _n.includes('dispatch')) _key = 'delivery';
+
         // Get zone-specific settings, fallback to dinein if missing
-        const zoneSettings = appSettings.tableDisplay?.[zone.id] || appSettings.tableDisplay?.dinein;
+        const zoneSettings = (appSettings.tableDisplay && appSettings.tableDisplay[_key])
+                          || (appSettings.tableDisplay && appSettings.tableDisplay[zone.id])
+                          || appSettings.tableDisplay?.dinein
+                          || {};
         if (!zoneSettings) return;
         
         const zoneSectionElement = document.getElementById(`${zone.id}-section`);
@@ -142,8 +151,11 @@ function renderAllTables() {
                 rowDiv.classList.remove('auto-size');
             }
             
-            rowDiv.style.setProperty('--table-btn-gap', zoneSettings.tableBtnGap);
-            rowDiv.style.setProperty('--table-btn-column-gap', zoneSettings.tableBtnColumnGap);
+            rowDiv.style.setProperty('--table-btn-gap', zoneSettings.tableBtnGap || '15px');
+            rowDiv.style.setProperty('--table-btn-column-gap', zoneSettings.tableBtnColumnGap || '15px');
+            rowDiv.style.setProperty('--table-btn-width', zoneSettings.tableBtnWidth || '100px');
+            rowDiv.style.setProperty('--table-btn-height', zoneSettings.tableBtnHeight || '70px');
+            rowDiv.style.setProperty('--table-btn-min-item-width', zoneSettings.tableBtnMinItemWidth || '80px');
             
             section.tables.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
             
@@ -499,4 +511,4 @@ function showReservationWarning(tableName, clientName, clientPhone, reservation,
     document.getElementById('res-warn-cancel').onclick = function() { overlay.remove(); };
     document.getElementById('res-warn-proceed').onclick = function() { overlay.remove(); onProceed(); };
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-}
+                                     }
