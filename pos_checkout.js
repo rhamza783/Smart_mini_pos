@@ -112,40 +112,48 @@ function printBill(isKOT = true, payments = []) {
         .p-flex { display: flex; justify-content: space-between; align-items: flex-start; }
         .p-sep { border-bottom: 1px dashed #000; margin: 8px 0; }
         
-        .f-header { font-size: ${s.headerFontSize}; font-family: ${s.headerFontFamily}; font-weight: ${s.headerFontStyle === 'bold' ? 'bold' : 'normal'}; }
+        /* Legacy unified header fallback */
+        .f-header { font-size: ${s.headerFontSize || '16px'}; font-family: ${s.headerFontFamily || 'sans-serif'}; font-weight: ${s.headerFontStyle === 'bold' ? 'bold' : 'normal'}; }
+
+        /* Separate Restaurant Name / Address / Phone */
+        .f-rest-name  { font-size: ${s.restaurantNameFontSize  || s.headerFontSize  || '18px'}; font-family: '${s.restaurantNameFontFamily  || s.headerFontFamily  || 'sans-serif'}', sans-serif; font-weight: ${(s.restaurantNameFontStyle  || 'bold') === 'bold' ? 'bold' : 'normal'}; font-style: ${(s.restaurantNameFontStyle  || 'bold') !== 'bold' ? (s.restaurantNameFontStyle  || 'normal') : 'normal'}; }
+        .f-rest-addr  { font-size: ${s.restaurantAddrFontSize  || s.headerFontSize  || '12px'}; font-family: '${s.restaurantAddrFontFamily  || s.headerFontFamily  || 'sans-serif'}', sans-serif; font-weight: ${(s.restaurantAddrFontStyle  || 'normal') === 'bold' ? 'bold' : 'normal'}; font-style: ${(s.restaurantAddrFontStyle  || 'normal') !== 'bold' ? (s.restaurantAddrFontStyle  || 'normal') : 'normal'}; }
+        .f-rest-phone { font-size: ${s.restaurantPhoneFontSize || s.headerFontSize  || '12px'}; font-family: '${s.restaurantPhoneFontFamily || s.headerFontFamily  || 'sans-serif'}', sans-serif; font-weight: ${(s.restaurantPhoneFontStyle || 'normal') === 'bold' ? 'bold' : 'normal'}; font-style: ${(s.restaurantPhoneFontStyle || 'normal') !== 'bold' ? (s.restaurantPhoneFontStyle || 'normal') : 'normal'}; }
         
         /* REQ 1: ITEM NAME LEFT ALIGNED */
-        .f-item-name { font-size: ${s.itemNameFontSize}; font-family: ${s.itemNameFontFamily}; font-weight: ${s.itemNameFontStyle === 'bold' ? 'bold' : 'normal'}; text-align: left; }
+        .f-item-name { font-size: ${s.itemNameFontSize || '12px'}; font-family: ${s.itemNameFontFamily || 'sans-serif'}; font-weight: ${s.itemNameFontStyle === 'bold' ? 'bold' : 'normal'}; text-align: left; }
         .urdu { font-family: 'Noto Nastaliq Urdu', serif !important; direction: rtl; text-align: left; display: block; line-height: 1.8; }
         
-        .f-item-price { font-size: ${s.itemPriceFontSize}; font-family: ${s.itemPriceFontFamily}; font-weight: ${s.itemPriceFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-total-box { font-size: ${s.totalBoxFontSize}; font-family: ${s.totalBoxFontFamily}; font-weight: ${s.totalBoxFontStyle}; border-top:2px solid #000; border-bottom:2px solid #000; padding:5px 0; margin:10px 0; }
-        .f-footer { font-size: ${s.footerFontSize}; font-family: ${s.footerFontFamily}; font-weight: ${s.footerFontStyle === 'bold' ? 'bold' : 'normal'}; }
+        .f-item-price { font-size: ${s.itemPriceFontSize || '12px'}; font-family: ${s.itemPriceFontFamily || 'sans-serif'}; font-weight: ${s.itemPriceFontStyle === 'bold' ? 'bold' : 'normal'}; }
+        .f-total-box { font-size: ${s.totalBoxFontSize || '16px'}; font-family: ${s.totalBoxFontFamily || 'sans-serif'}; font-weight: ${s.totalBoxFontStyle || 'bold'}; border-top:2px solid #000; border-bottom:2px solid #000; padding:5px 0; margin:10px 0; }
+        .f-footer { font-size: ${s.footerFontSize || '12px'}; font-family: ${s.footerFontFamily || 'sans-serif'}; font-weight: ${s.footerFontStyle === 'bold' ? 'bold' : 'normal'}; }
         
-        .f-date-h { font-size: ${s.dateHeadingFontSize}; font-family: ${s.dateHeadingFontFamily}; font-weight: ${s.dateHeadingFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-date-v { font-size: ${s.dateValueFontSize}; font-family: ${s.dateValueFontFamily}; font-weight: ${s.dateValueFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-order-h { font-size: ${s.orderHeadingFontSize}; font-family: ${s.orderHeadingFontFamily}; font-weight: ${s.orderHeadingFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-order-v { font-size: ${s.orderValueFontSize}; font-family: ${s.orderValueFontFamily}; font-weight: ${s.orderValueFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        
-        /* REQ 4: BOLD & BIG FOOTER */
-        .f-thanks-bold { font-size: 1.1rem; font-weight: bold; margin-top: 10px; display: block; }
-        .f-software-bold { font-size: 1rem; font-weight: bold; display: block; margin-top: 5px; }
-        
-        .f-table-h { font-size: ${s.tableHeadingFontSize}; font-family: ${s.tableHeadingFontFamily}; font-weight: ${s.tableHeadingFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-table-v { font-size: ${s.tableValueFontSize}; font-family: ${s.tableValueFontFamily}; font-weight: ${s.tableValueFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-server-h { font-size: ${s.serverHeadingFontSize}; font-family: ${s.serverHeadingFontFamily}; font-weight: ${s.serverHeadingFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-server-v { font-size: ${s.serverValueFontSize}; font-family: ${s.serverValueFontFamily}; font-weight: ${s.serverValueFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-qty { font-size: ${s.qtyNumberFontSize}; font-family: ${s.qtyNumberFontFamily}; font-weight: ${s.qtyNumberFontStyle === 'bold' ? 'bold' : 'normal'}; }
-        .f-disc { font-size: ${s.discountFontSize}; font-family: ${s.discountFontFamily}; }
-        .f-subt { font-size: ${s.subtotalFontSize}; font-family: ${s.subtotalFontFamily}; }
+        .f-date-h   { font-size: ${s.dateHeadingFontSize   || '12px'}; font-family: ${s.dateHeadingFontFamily   || 'sans-serif'}; font-weight: ${s.dateHeadingFontStyle   === 'bold' ? 'bold' : 'normal'}; }
+        .f-date-v   { font-size: ${s.dateValueFontSize      || '12px'}; font-family: ${s.dateValueFontFamily      || 'sans-serif'}; font-weight: ${s.dateValueFontStyle      === 'bold' ? 'bold' : 'normal'}; }
+        .f-order-h  { font-size: ${s.orderHeadingFontSize   || '12px'}; font-family: ${s.orderHeadingFontFamily   || 'sans-serif'}; font-weight: ${s.orderHeadingFontStyle   === 'bold' ? 'bold' : 'normal'}; }
+        .f-order-v  { font-size: ${s.orderValueFontSize     || '12px'}; font-family: ${s.orderValueFontFamily     || 'sans-serif'}; font-weight: ${s.orderValueFontStyle     === 'bold' ? 'bold' : 'normal'}; }
+        .f-table-h  { font-size: ${s.tableHeadingFontSize   || '12px'}; font-family: ${s.tableHeadingFontFamily   || 'sans-serif'}; font-weight: ${s.tableHeadingFontStyle   === 'bold' ? 'bold' : 'normal'}; }
+        .f-table-v  { font-size: ${s.tableValueFontSize     || '12px'}; font-family: ${s.tableValueFontFamily     || 'sans-serif'}; font-weight: ${s.tableValueFontStyle     === 'bold' ? 'bold' : 'normal'}; }
+        .f-server-h { font-size: ${s.serverHeadingFontSize  || '12px'}; font-family: ${s.serverHeadingFontFamily  || 'sans-serif'}; font-weight: ${s.serverHeadingFontStyle  === 'bold' ? 'bold' : 'normal'}; }
+        .f-server-v { font-size: ${s.serverValueFontSize    || '12px'}; font-family: ${s.serverValueFontFamily    || 'sans-serif'}; font-weight: ${s.serverValueFontStyle    === 'bold' ? 'bold' : 'normal'}; }
+        .f-cashier-h{ font-size: ${s.cashierHeadingFontSize || '12px'}; font-family: ${s.cashierHeadingFontFamily || 'sans-serif'}; font-weight: ${s.cashierHeadingFontStyle === 'bold' ? 'bold' : 'normal'}; }
+        .f-cashier-v{ font-size: ${s.cashierValueFontSize   || '12px'}; font-family: ${s.cashierValueFontFamily   || 'sans-serif'}; font-weight: ${s.cashierValueFontStyle   === 'bold' ? 'bold' : 'normal'}; }
+        .f-qty      { font-size: ${s.qtyNumberFontSize      || '12px'}; font-family: ${s.qtyNumberFontFamily      || 'sans-serif'}; font-weight: ${s.qtyNumberFontStyle      === 'bold' ? 'bold' : 'normal'}; }
+        .f-disc     { font-size: ${s.discountFontSize       || '12px'}; font-family: ${s.discountFontFamily       || 'sans-serif'}; }
+        .f-subt     { font-size: ${s.subtotalFontSize       || '12px'}; font-family: ${s.subtotalFontFamily       || 'sans-serif'}; }
+        .f-thanks   { font-size: ${s.thanksFontSize         || '12px'}; font-family: ${s.thanksFontFamily         || 'sans-serif'}; font-weight: ${s.thanksFontStyle         === 'bold' ? 'bold' : 'normal'}; display: block; margin-top: 6px; }
     `;
 
     let headerHtml = `<div class="p-center">`;
-    if (config.printLogo && prop.logo) headerHtml += `<img src="${prop.logo}" style="max-width:130px; margin-bottom:10px;"><br>`;
+    if (config.printLogo && prop.logo) {
+        const logoW = config.logoWidth || prop.logoWidth || s.logoWidth || '80px';
+        headerHtml += `<img src="${prop.logo}" style="width:${logoW}; max-width:100%; height:auto; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;"><br>`;
+    }
     if (config.printPropInfo) {
-        headerHtml += `<div class="f-header">${prop.name}</div>`;
-        headerHtml += `<div class="f-header">${prop.address}</div>`;
-        headerHtml += `<div class="f-header">Tel: ${prop.phone}</div>`;
+        headerHtml += `<div class="f-rest-name">${prop.name}</div>`;
+        headerHtml += `<div class="f-rest-addr">${prop.address}</div>`;
+        if (prop.phone) headerHtml += `<div class="f-rest-phone">Tel: ${prop.phone}</div>`;
+        if (prop.branch) headerHtml += `<div class="f-rest-addr">Branch: ${prop.branch}</div>`;
     }
     headerHtml += `</div>`;
     document.getElementById('print-header-config').innerHTML = headerHtml;
@@ -162,7 +170,7 @@ function printBill(isKOT = true, payments = []) {
     if (config.printInvoiceNo) metaHtml += `<div class="p-flex"><span class="f-order-h">Order #:</span><span class="f-order-v">${ord.id}</span></div>`;
     metaHtml += `<div class="p-flex"><span class="f-table-h">Table:</span><span class="f-table-v">${tblName}</span></div>`;
     if (config.printWaiter) metaHtml += `<div class="p-flex"><span class="f-server-h">Server:</span><span class="f-server-v">${ord.waiter || "Staff"}</span></div>`;
-    if (config.printCashier && app.currentUser) metaHtml += `<div class="p-flex"><span>Cashier:</span><span>${app.currentUser.name}</span></div>`;
+    if (config.printCashier && app.currentUser) metaHtml += `<div class="p-flex"><span class="f-cashier-h">Cashier:</span><span class="f-cashier-v">${app.currentUser.name}</span></div>`;
     metaHtml += `<div class="p-center" style="font-weight:bold; margin-top:5px;">*** ${isKOT ? 'KITCHEN ORDER' : 'CUSTOMER RECEIPT'} ***</div>`;
     document.getElementById('rec-meta-body').innerHTML = metaHtml;
 
@@ -217,11 +225,12 @@ function printBill(isKOT = true, payments = []) {
     }
     document.getElementById('rec-payment-breakdown').innerHTML = payHtml;
 
-    /* REQ 4: CUSTOM BIG BOLD FOOTER */
+    /* REQ 4: FOOTER — uses thanksFontSize from bill/KOT settings */
+    const footerNote = config.customFooter || '';
     document.getElementById('dynamic-print-footer').innerHTML = `
         <div class="p-center">
-            <span class="f-thanks-bold">*** Thank You ***</span>
-            <span class="f-software-bold">Software by: Hamza Younas</span>
+            <span class="f-thanks">${footerNote || '*** Thank You ***'}</span>
+            <span class="f-footer" style="display:block; margin-top:4px;">Software by: Hamza Younas</span>
         </div>
     `;
 
