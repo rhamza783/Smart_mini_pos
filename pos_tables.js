@@ -511,4 +511,4 @@ function showReservationWarning(tableName, clientName, clientPhone, reservation,
     document.getElementById('res-warn-cancel').onclick = function() { overlay.remove(); };
     document.getElementById('res-warn-proceed').onclick = function() { overlay.remove(); onProceed(); };
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-                                     }
+}
