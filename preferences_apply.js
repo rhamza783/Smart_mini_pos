@@ -109,4 +109,65 @@ function applyPreferences() {
   document.getElementById('app-header-title').textContent = appSettings.property.name + ' POS';
 }
 
+// ============================================================================
+// applyAdvancedCSSVariables — applies per-zone table settings to DOM containers
+// This is the missing link that makes Table Display Settings actually work.
+// Called whenever a zone-specific setting changes or renderAllTables() runs.
+// ============================================================================
+function applyAdvancedCSSVariables() {
+  if (typeof tableLayout === 'undefined' || !Array.isArray(tableLayout)) return;
+
+  tableLayout.forEach(zone => {
+    const container = document.getElementById(`${zone.id}-container`);
+    if (!container) return;
+
+    // Map zone name → settings key (dinein / takeaway / delivery)
+    const n = (zone.name || '').toLowerCase();
+    let key = 'dinein';
+    if (n.includes('take') || n.includes('parcel') || n.includes('pickup') || n.includes('carry')) key = 'takeaway';
+    else if (n.includes('del') || n.includes('rider') || n.includes('dispatch')) key = 'delivery';
+
+    const zs = (appSettings.tableDisplay && appSettings.tableDisplay[key]) || {};
+
+    // Helper: set CSS variable only when value is present
+    const sv = (prop, val) => { if (val) container.style.setProperty(prop, val); };
+
+    sv('--table-btn-width',         zs.tableBtnWidth);
+    sv('--table-btn-height',        zs.tableBtnHeight);
+    sv('--table-btn-gap',           zs.tableBtnGap);
+    sv('--table-btn-column-gap',    zs.tableBtnColumnGap);
+    sv('--table-btn-min-item-width',zs.tableBtnMinItemWidth);
+    sv('--table-button-border-radius', zs.tableButtonBorderRadius);
+    sv('--table-group-line-style',  zs.tableGroupLineStyle);
+    sv('--table-group-line-thickness', zs.tableGroupLineThickness);
+    sv('--table-group-line-color',  zs.tableGroupLineColor);
+    sv('--table-group-h-gap',       zs.tableGroupHPadding);
+
+    // Auto-size rows
+    container.querySelectorAll('.fit-row').forEach(row => {
+      if (zs.tableBtnAutoSize) row.classList.add('auto-size');
+      else row.classList.remove('auto-size');
+    });
+
+    // Per-zone typography on table buttons
+    if (zs.tableFontSize || (zs.uiFont && zs.uiFont.tableFamily)) {
+      container.querySelectorAll('.table-btn').forEach(btn => {
+        if (zs.tableFontSize) btn.style.fontSize = zs.tableFontSize;
+        if (zs.uiFont && zs.uiFont.tableFamily) btn.style.fontFamily = `${zs.uiFont.tableFamily}, sans-serif`;
+        if (zs.uiFont && zs.uiFont.tableStyle) btn.style.fontStyle = zs.uiFont.tableStyle;
+      });
+    }
+
+    // Per-zone typography on group/section headers
+    if (zs.tableGroupHeaderFontSize || (zs.uiFont && zs.uiFont.tableHeaderFamily)) {
+      container.querySelectorAll('.section-label, .table-group-header').forEach(lbl => {
+        if (zs.tableGroupHeaderFontSize) lbl.style.fontSize = zs.tableGroupHeaderFontSize;
+        if (zs.uiFont && zs.uiFont.tableHeaderFamily) lbl.style.fontFamily = `${zs.uiFont.tableHeaderFamily}, sans-serif`;
+        if (zs.uiFont && zs.uiFont.tableHeaderStyle) lbl.style.fontStyle = zs.uiFont.tableHeaderStyle;
+      });
+    }
+  });
+}
+window.applyAdvancedCSSVariables = applyAdvancedCSSVariables;
+
 applyPreferences();
