@@ -69,6 +69,11 @@ function renderConfigContent() {
                     <input type="file" id="prop-logo-input" accept="image/*" style="display:none;" onchange="previewPropLogo(this)">
                     <input type="hidden" id="prop-logo-base64" value="${appSettings.property.logo || ''}">
                 </div>
+                <div class="modern-input-group full-width" style="background:rgba(103,80,164,0.08); padding:10px; border-radius:10px;">
+                    <label style="color:var(--col-primary);">Logo Width on Receipts (e.g. 80px)</label>
+                    <input type="text" id="prop-logo-width" class="modern-input" value="${appSettings.property.logoWidth || '80px'}">
+                    <small style="margin-top:5px; display:block; color:var(--text-secondary);">Controls logo size on both Customer Bill and KOT prints.</small>
+                </div>
                 <div class="modern-input-group"><label>Restaurant Name</label><input type="text" id="prop-name" class="modern-input" value="${appSettings.property.name}" oninput="updatePrintPreviewProperty()"></div>
                 <div class="modern-input-group"><label>Phone Number</label><input type="text" id="prop-phone" class="modern-input" value="${appSettings.property.phone}" oninput="updatePrintPreviewProperty()"></div>
                 <div class="modern-input-group full-width"><label>Address</label><input type="text" id="prop-address" class="modern-input" value="${appSettings.property.address}" oninput="updatePrintPreviewProperty()"></div>
@@ -647,8 +652,35 @@ function renderConfigContent() {
 
                 <h4 style="grid-column: span 2; margin-top:15px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:5px; color:var(--col-primary);">Granular Print Styles (Customer Bill)</h4>
 
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(103,80,164,0.2); border-radius:12px; padding:15px; background:rgba(103,80,164,0.05);">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--col-primary); margin-bottom:10px;">🖼️ Logo Size on Receipt</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Width (e.g. 80px)</label><input type="text" id="bc-logo-width" class="modern-input" value="${bs.logoWidth || appSettings.property.logoWidth || '80px'}" oninput="updatePrintPreview('bill')"></div>
+                    </div>
+                </div>
                 <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">Header Text (Name, Address, Phone)</label>
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">🏪 Restaurant Name</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 18px)</label><input type="text" id="bc-rest-name-size" class="modern-input" value="${bs.restaurantNameFontSize || '18px'}" oninput="updatePrintPreview('bill')"></div>
+                        ${renderFontSelect('bc-rest-name', bs.restaurantNameFontFamily, bs.restaurantNameFontStyle)}
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">📍 Restaurant Address</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 12px)</label><input type="text" id="bc-rest-addr-size" class="modern-input" value="${bs.restaurantAddrFontSize || '12px'}" oninput="updatePrintPreview('bill')"></div>
+                        ${renderFontSelect('bc-rest-addr', bs.restaurantAddrFontFamily, bs.restaurantAddrFontStyle)}
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">📞 Restaurant Phone</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 12px)</label><input type="text" id="bc-rest-phone-size" class="modern-input" value="${bs.restaurantPhoneFontSize || '12px'}" oninput="updatePrintPreview('bill')"></div>
+                        ${renderFontSelect('bc-rest-phone', bs.restaurantPhoneFontFamily, bs.restaurantPhoneFontStyle)}
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">Header Text — Legacy fallback (Name, Address, Phone)</label>
                     <div class="modern-form-grid">
                         <div class="modern-input-group"><label>Size (e.g. 16px)</label><input type="text" id="bc-header-size" class="modern-input" value="${bs.headerFontSize || '16px'}" oninput="updatePrintPreview('bill')"></div>
                         ${renderFontSelect('bc-header', bs.headerFontFamily, bs.headerFontStyle)}
@@ -818,6 +850,33 @@ function renderConfigContent() {
                 <h4 style="grid-column: span 2; margin-top:15px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:5px; color:var(--col-primary);">Granular Print Styles (KOT)</h4>
 
                 <!-- KOT granular fields (same as bill but with kot- prefix) -->
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(103,80,164,0.2); border-radius:12px; padding:15px; background:rgba(103,80,164,0.05);">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--col-primary); margin-bottom:10px;">🖼️ Logo Size on KOT</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Width (e.g. 80px)</label><input type="text" id="kot-logo-width" class="modern-input" value="${ks.logoWidth || appSettings.property.logoWidth || '80px'}" oninput="updatePrintPreview('kot')"></div>
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">🏪 Restaurant Name</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 18px)</label><input type="text" id="kot-rest-name-size" class="modern-input" value="${ks.restaurantNameFontSize || '18px'}" oninput="updatePrintPreview('kot')"></div>
+                        ${renderFontSelect('kot-rest-name', ks.restaurantNameFontFamily, ks.restaurantNameFontStyle)}
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">📍 Restaurant Address</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 12px)</label><input type="text" id="kot-rest-addr-size" class="modern-input" value="${ks.restaurantAddrFontSize || '12px'}" oninput="updatePrintPreview('kot')"></div>
+                        ${renderFontSelect('kot-rest-addr', ks.restaurantAddrFontFamily, ks.restaurantAddrFontStyle)}
+                    </div>
+                </div>
+                <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">📞 Restaurant Phone</label>
+                    <div class="modern-form-grid">
+                        <div class="modern-input-group"><label>Size (e.g. 12px)</label><input type="text" id="kot-rest-phone-size" class="modern-input" value="${ks.restaurantPhoneFontSize || '12px'}" oninput="updatePrintPreview('kot')"></div>
+                        ${renderFontSelect('kot-rest-phone', ks.restaurantPhoneFontFamily, ks.restaurantPhoneFontStyle)}
+                    </div>
+                </div>
                 <div class="full-width-group" style="margin-bottom:15px; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:15px;">
                     <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">Header Text (Name, Address, Phone)</label>
                     <div class="modern-form-grid">
