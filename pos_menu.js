@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  FILE: pos_menu.js – Menu Categories, Items Rendering, and Item Addition    ║
-║         (Added modifier support, Urdu names, tooltips)                      ║
+║  FILE: pos_menu.js – Menu Categories, Items Rendering, and Item Addition     ║
+║         (Fixed Variant + Modifier chaining logic and modal crashes)          ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -179,57 +179,123 @@ function hideMenuItemTooltip() {
   }
 }
 
+// ============================================================================
+// ============================================================================
+// IMPROVED ITEM CLICK & ADD LOGIC (FIXED CHAINING)
+// ============================================================================
+
+/**
+ * Adds an item to the order. Handles variants, modifiers, and askPrice/askQty in sequence.
+ * @param {Object} item - The menu item object.
+ */
 function addToOrder(item) {
   if (app.isReadOnly) return;
-  
-  // Check for modifiers first
-  if (item.modifiers && item.modifiers.length > 0) {
-    openModifierModal(item, (selectedModifiers) => {
-      const finalPrice = item.price + selectedModifiers.reduce((sum, m) => sum + m.price, 0);
-      const finalName = item.name;
-      processItemAdd(item, finalName, finalPrice, selectedModifiers);
-    });
-    return;
-  }
-  
+
+  // Helper to safely call a modal function and handle errors.
+  const safeOpenModal = (modalFunc, ...args) => {
+    if (typeof modalFunc !== 'function') {
+      console.error(`Modal function is not defined: ${modalFunc}`);
+      showCustomAlert('System Error', 'Cannot open options. Please contact support.');
+      return false;
+    }
+    try {
+      modalFunc(...args);
+      return true;
+    } catch (err) {
+      console.error('Error opening modal:', err);
+      showCustomAlert('System Error', 'Failed to open options. Please try again.');
+      return false;
+    }
+  };
+
+  // --------------------------------------------------------------
+  // 1. Item has variants -> open variant modal first
+  // --------------------------------------------------------------
   if (item.variants && item.variants.length > 0) {
-    openVariantModal(item, (selectedVariant) => {
-      if (selectedVariant) {
-        const finalName = `${item.name} (${selectedVariant.vName})`;
-        const finalPrice = selectedVariant.vPrice;
+    console.log('[addToOrder] Item has variants, opening variant modal:', item.name);
+    const variantCallback = (selectedVariant) => {
+      console.log('[addToOrder] Variant selected:', selectedVariant);
+      if (!selectedVariant) {
+        console.log('[addToOrder] Variant selection cancelled');
+        return;
+      }
+
+      const finalName = `${item.name} (${selectedVariant.vName})`;
+      const finalPrice = selectedVariant.vPrice;
+
+      // ----------------------------------------------------------
+      // 2. After variant, check for modifiers
+      // ----------------------------------------------------------
+      if (item.modifiers && item.modifiers.length > 0) {
+        console.log('[addToOrder] Item has modifiers, opening modifier modal');
+        const modifierCallback = (selectedModifiers) => {
+          console.log('[addToOrder] Modifiers selected:', selectedModifiers);
+          // Modifier modal may return null if cancelled
+          if (selectedModifiers === null) {
+            console.log('[addToOrder] Modifier selection cancelled');
+            return;
+          }
+          processItemAdd(item, finalName, finalPrice, selectedModifiers || []);
+        };
+        safeOpenModal(openModifierModal, item, finalPrice, modifierCallback);
+      } else {
+        console.log('[addToOrder] No modifiers, adding directly');
         processItemAdd(item, finalName, finalPrice, []);
       }
-    });
+    };
+    safeOpenModal(openVariantModal, item, variantCallback);
     return;
   }
-  
+
+  // --------------------------------------------------------------
+  // 3. No variants, but has modifiers -> open modifier modal
+  // --------------------------------------------------------------
+  if (item.modifiers && item.modifiers.length > 0) {
+    console.log('[addToOrder] Item has modifiers, opening modifier modal');
+    const modifierCallback = (selectedModifiers) => {
+      console.log('[addToOrder] Modifiers selected:', selectedModifiers);
+      if (selectedModifiers === null) return;
+      processItemAdd(item, item.name, item.price, selectedModifiers || []);
+    };
+    safeOpenModal(openModifierModal, item, item.price, modifierCallback);
+    return;
+  }
+
+  // --------------------------------------------------------------
+  // 4. Standard item (no variants, no modifiers)
+  // --------------------------------------------------------------
+  console.log('[addToOrder] Standard item, adding directly');
   processItemAdd(item, item.name, item.price, []);
 }
 
+/**
+ * Handles askPrice/askQty prompts if needed, then finalizes the addition.
+ * @param {Object} item - Original menu item.
+ * @param {string} finalName - Display name (may include variant).
+ * @param {number} finalPrice - Base price (without modifiers).
+ * @param {Array} selectedModifiers - Array of modifier objects.
+ */
 function processItemAdd(item, finalName, finalPrice, selectedModifiers) {
+  // Determine mode for custom prompt
   let mode = '';
   if (item.askPrice && item.askQty) mode = 'both';
   else if (item.askPrice) mode = 'price';
   else if (item.askQty) mode = 'qty';
-  
+
   if (mode !== '') {
+    console.log(`[processItemAdd] Asking for custom ${mode} for ${finalName}`);
     openCustomPrompt(`Enter details for ${finalName}:`, item, finalPrice, 1, mode, (result) => {
-      if (result.price === null && result.qty === null) return;
+      if (result.price === null && result.qty === null) return; // cancelled
       const userPrice = result.price !== null ? result.price : finalPrice;
       const userQty = result.qty !== null ? result.qty : 1;
-      
+
       const isPriceValid = !isNaN(userPrice) &&
         (userPrice > 0 || (userPrice === 0 && item && item.price === 0 && item.askPrice) || mode === 'qty');
-      
       const isQtyValid = !isNaN(userQty) && userQty > 0;
-      
-      if (!isPriceValid) {
-        return showCustomAlert("Invalid Price", "Please enter a valid price (must be greater than 0 unless item is configured for 0-price with 'Ask for price' enabled).");
-      }
-      if (!isQtyValid && mode !== 'price') {
-        return showCustomAlert("Invalid Quantity", "Please enter a valid quantity (must be greater than 0).");
-      }
-      
+
+      if (!isPriceValid) return showCustomAlert("Invalid Price", "Please enter a valid price.");
+      if (!isQtyValid && mode !== 'price') return showCustomAlert("Invalid Quantity", "Please enter a valid quantity.");
+
       finishAddToOrder(item, finalName, userPrice, userQty, selectedModifiers);
     });
   } else {
@@ -237,39 +303,66 @@ function processItemAdd(item, finalName, finalPrice, selectedModifiers) {
   }
 }
 
+/**
+ * Pushes the final order item into app.currentOrder.
+ * Handles merging for non‑modifier items.
+ * @param {Object} baseItem - Original menu item.
+ * @param {string} finalName - Display name.
+ * @param {number} finalPrice - Base price (with variant, without modifiers).
+ * @param {number} qty - Quantity.
+ * @param {Array} selectedModifiers - Array of modifier objects.
+ */
 function finishAddToOrder(baseItem, finalName, finalPrice, qty, selectedModifiers) {
-  const existing = app.currentOrder.find(i => i.name === finalName && i.price === finalPrice);
+  console.log(`[finishAddToOrder] Adding ${qty} x ${finalName} (price: ${finalPrice}) with ${selectedModifiers.length} modifiers`);
+
+  // If the item has modifiers, push a unique row (cannot merge because modifiers differ)
+  if (selectedModifiers && selectedModifiers.length > 0) {
+    const modExtra = selectedModifiers.reduce((s, m) => s + (m.price * (m.qty || 1)), 0);
+    const itemTotalPrice = finalPrice + modExtra;
+
+    app.currentOrder.push({
+      id: baseItem.id,
+      name: finalName,
+      altName: baseItem.altName,
+      price: itemTotalPrice,
+      basePrice: finalPrice,
+      qty: qty,
+      total: itemTotalPrice * qty,
+      printedQty: 0,
+      modifiers: selectedModifiers,
+      itemNote: ''
+    });
+
+    saveToLocal();
+    renderOrderList();
+    return;
+  }
+
+  // No modifiers: try to merge with an identical existing row
+  const existing = app.currentOrder.find(i =>
+    i.name === finalName &&
+    i.price === finalPrice &&
+    (!i.modifiers || i.modifiers.length === 0)
+  );
+
   if (existing) {
     existing.qty += qty;
     existing.total = existing.qty * existing.price;
-    if (selectedModifiers.length > 0) {
-      // For simplicity, we'll treat modifiers as part of the item – if same modifiers exist, we could combine,
-      // but we'll just add as new item to avoid complexity.
-      app.currentOrder.push({
-        id: baseItem.id,
-        name: finalName,
-        altName: baseItem.altName,
-        price: finalPrice,
-        qty: qty,
-        total: finalPrice * qty,
-        printedQty: 0,
-        modifiers: selectedModifiers,
-        itemNote: ''
-      });
-    }
   } else {
     app.currentOrder.push({
       id: baseItem.id,
       name: finalName,
       altName: baseItem.altName,
       price: finalPrice,
+      basePrice: finalPrice,
       qty: qty,
       total: finalPrice * qty,
       printedQty: 0,
-      modifiers: selectedModifiers,
+      modifiers: [],
       itemNote: ''
     });
   }
+
   saveToLocal();
   renderOrderList();
 }
