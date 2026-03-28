@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║  FILE: pos_cart.js – Cart Rendering, Item Quantity Changes, and Totals      ║
-║         (Added order notes, item notes, Urdu waiter name)                   ║
+║         (Added order notes, item notes, Urdu waiter name, Modifiers)        ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -98,7 +98,7 @@ function renderOrderList() {
 
                 div.innerHTML = `
                     <div class="item-name"><span class="item-bullet"></span> ${itemNameDisplay} ${lockIcon} ${noteIcon}</div>
-                    <div class="item-unit-price">${item.price}</div>
+                    <div class="item-unit-price">${item.basePrice !== undefined ? item.basePrice : item.price}</div>
                     <div class="item-qty">
                         <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
                         <span class="qty-val">${item.qty}</span>
@@ -113,6 +113,39 @@ function renderOrderList() {
                     }
                 });
                 list.appendChild(div);
+
+                // ── Render modifier sub-rows ─────────────────────────────
+                if (item.modifiers && item.modifiers.length > 0) {
+                    item.modifiers.forEach((mod, mIdx) => {
+                        const modRow = document.createElement('div');
+                        modRow.style.cssText = `
+                            display:flex; align-items:center; gap:4px;
+                            padding:2px 4px 2px 28px; margin-top:-2px;
+                            border-left:3px solid var(--col-primary-light);
+                            margin-left:12px; margin-bottom:2px;`;
+
+                        const isFree = !mod.price || mod.price === 0;
+                        const priceText = isFree ? 'Free' : `+${appSettings.property.currency} ${(mod.price * (mod.qty || 1)).toFixed(0)}`;
+                        const qtyText = (mod.qty && mod.qty > 1) ? `x${mod.qty} ` : '';
+
+                        modRow.innerHTML = `
+                            <span style="color:var(--col-primary); font-size:0.75rem; flex-shrink:0;">▸</span>
+                            <span style="font-size:0.78rem; color:var(--text-secondary); flex:1; font-style:italic;">
+                                ${qtyText}${mod.optionName}
+                                <span style="color:var(--col-success); font-weight:600; margin-left:4px;">${priceText}</span>
+                            </span>
+                            <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
+                                <button onclick="changeModQty(${idx},${mIdx},-1)" style="width:18px; height:18px; border-radius:4px; border:none;
+                                    background:var(--bg-app); box-shadow:var(--neumorph-out-sm); font-size:0.75rem;
+                                    cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--col-danger);">−</button>
+                                <span style="font-size:0.72rem; min-width:14px; text-align:center; font-weight:700;">${mod.qty || 1}</span>
+                                <button onclick="changeModQty(${idx},${mIdx},1)" style="width:18px; height:18px; border-radius:4px; border:none;
+                                    background:var(--bg-app); box-shadow:var(--neumorph-out-sm); font-size:0.75rem;
+                                    cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--col-success);">+</button>
+                            </div>`;
+                        list.appendChild(modRow);
+                    });
+                }
             }
         });
 
@@ -145,7 +178,6 @@ function changeQty(idx, delta) {
             return;
         }
         item.total = item.price * item.qty;
-        // Children quantities are not stored separately; they are implied.
         saveToLocal();
         renderOrderList();
         return;
@@ -190,6 +222,40 @@ function changeQty(idx, delta) {
     renderOrderList();
 }
 
+function changeModQty(itemIdx, modIdx, delta) {
+    if (app.isReadOnly) return;
+    const item = app.currentOrder[itemIdx];
+    if (!item || !item.modifiers || !item.modifiers[modIdx]) return;
+
+    const mod = item.modifiers[modIdx];
+    const newQty = (mod.qty || 1) + delta;
+
+    if (newQty < 1) {
+        // Remove this modifier
+        openConfirm('Remove Modifier?', `Remove "${mod.optionName}" from this item?`, () => {
+            item.modifiers.splice(modIdx, 1);
+            // Recalculate item price
+            recalcItemPrice(item);
+            saveToLocal();
+            renderOrderList();
+        });
+        return;
+    }
+
+    mod.qty = newQty;
+    recalcItemPrice(item);
+    saveToLocal();
+    renderOrderList();
+}
+
+function recalcItemPrice(item) {
+    if (!item.basePrice) return;
+    const modExtra = (item.modifiers ||[]).reduce((s, m) => s + (m.price * (m.qty || 1)), 0);
+    item.price = item.basePrice + modExtra;
+    item.total = item.price * item.qty;
+}
+
+// ⬇️ THIS WAS THE MISSING LINE THAT BROKE THE APP ⬇️
 function editCartItem(idx) {
     if (app.isReadOnly) return;
     const item = app.currentOrder[idx];
@@ -203,26 +269,30 @@ function editCartItem(idx) {
     openCustomPrompt(
         `Edit ${item.name}`,
         null,
-        item.price,
+        item.basePrice !== undefined ? item.basePrice : item.price,
         item.qty,
         'both',
         (result) => {
             if (result.price === null && result.qty === null) return;
 
-            let newPrice = result.price !== null ? result.price : item.price;
+            let newPrice = result.price !== null ? result.price : (item.basePrice !== undefined ? item.basePrice : item.price);
             let newQty = result.qty !== null ? result.qty : item.qty;
 
             if (newPrice < 0) {
                 showCustomAlert("Invalid Price", "Price cannot be negative.");
                 return;
             }
-            if (item.printedQty > 0 && newPrice < item.price) {
+            if (item.printedQty > 0 && newPrice < (item.basePrice !== undefined ? item.basePrice : item.price)) {
                 if (!hasPerm('modifyPrinted')) {
                     verifyManagerPIN((isApproved) => {
                         if (isApproved) {
-                            item.price = newPrice;
+                            if(item.basePrice !== undefined) item.basePrice = newPrice;
+                            else item.price = newPrice;
                             item.qty = newQty;
-                            item.total = item.price * item.qty;
+                            
+                            if (item.modifiers && item.modifiers.length > 0) recalcItemPrice(item);
+                            else item.total = item.price * item.qty;
+
                             saveToLocal();
                             renderOrderList();
                             showToast(`Updated ${item.name}`);
@@ -232,9 +302,13 @@ function editCartItem(idx) {
                 }
             }
 
-            item.price = newPrice;
+            if(item.basePrice !== undefined) item.basePrice = newPrice;
+            else item.price = newPrice;
             item.qty = newQty;
-            item.total = item.price * item.qty;
+            
+            if (item.modifiers && item.modifiers.length > 0) recalcItemPrice(item);
+            else item.total = item.price * item.qty;
+
             saveToLocal();
             renderOrderList();
             showToast(`Updated ${item.name}`);
@@ -321,7 +395,7 @@ function clearOrder() {
 
     if (!hasPerm('deleteActiveOrder')) return showCustomAlert("Denied", "You do not have permission to delete/clear active orders.");
     openConfirm("Clear Order", "Are you sure you want to completely clear this order? All items will be removed.", () => {
-        app.currentOrder = [];
+        app.currentOrder =[];
         saveToLocal();
         renderOrderList();
     });
