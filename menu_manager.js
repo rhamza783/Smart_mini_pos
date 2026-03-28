@@ -172,42 +172,46 @@ function addModifierGroup() {
     const container = document.getElementById('adv-modifiers-list');
     const groupDiv = document.createElement('div');
     groupDiv.className = 'modifier-group';
-    groupDiv.style.marginBottom = '15px';
+    groupDiv.style.cssText = 'margin-bottom:15px; background:var(--bg-app); border-radius:12px; padding:12px; box-shadow:var(--neumorph-in-sm);';
     groupDiv.innerHTML = `
-        <div style="display:flex; gap:5px; margin-bottom:5px;">
-            <input type="text" class="modern-input mod-group-name" placeholder="Group name (e.g., Extra Toppings)" style="flex:2;">
-            <input type="number" class="modern-input mod-max-select" placeholder="Max select" style="flex:1; width:80px;" value="1">
-            <button class="icon-btn-sm" style="color:var(--col-danger);" onclick="this.closest('.modifier-group').remove()"><i class="fas fa-trash"></i></button>
+        <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
+            <input type="text" class="modern-input mod-group-name" placeholder="Group name (e.g. Extras, Sauce, Spice Level)" style="flex:1;">
+            <button class="icon-btn-sm" style="color:var(--col-danger); flex-shrink:0;" onclick="this.closest('.modifier-group').remove()" title="Remove group"><i class="fas fa-trash"></i></button>
         </div>
-        <div class="mod-options-list" style="margin-left:20px;"></div>
-        <button class="btn-modern" style="background:var(--bg-app); font-size:0.7rem; padding:5px;" onclick="addModifierOption(this)">+ Add Option</button>
+        <div class="mod-options-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+        <button class="btn-modern" style="background:var(--col-primary-light); color:var(--col-primary); font-size:0.75rem; padding:6px 12px; margin-top:8px; border:none;" onclick="addModifierOption(this)">
+            <i class="fas fa-plus"></i> Add Option
+        </button>
     `;
     container.appendChild(groupDiv);
+    // Auto-add first option row
+    addModifierOption(groupDiv.querySelector('button[onclick*="addModifierOption"]'));
 }
 
 function addModifierGroupFromData(group) {
     const container = document.getElementById('adv-modifiers-list');
     const groupDiv = document.createElement('div');
     groupDiv.className = 'modifier-group';
-    groupDiv.style.marginBottom = '15px';
+    groupDiv.style.cssText = 'margin-bottom:15px; background:var(--bg-app); border-radius:12px; padding:12px; box-shadow:var(--neumorph-in-sm);';
     let optionsHtml = '';
     group.options.forEach(opt => {
         optionsHtml += `
-            <div style="display:flex; gap:5px; margin-bottom:3px;">
-                <input type="text" class="modern-input mod-opt-name" placeholder="Option name" value="${opt.name}" style="flex:2;">
-                <input type="number" class="modern-input mod-opt-price" placeholder="Price" value="${opt.price}" style="flex:1;">
-                <button class="icon-btn-sm" style="color:var(--col-danger);" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" class="modern-input mod-opt-name" placeholder="Option name (e.g. Achaar)" value="${opt.name}" style="flex:2;">
+                <input type="number" class="modern-input mod-opt-price" placeholder="Extra price (0 = free)" value="${opt.price}" style="flex:1; min-width:80px;">
+                <button class="icon-btn-sm" style="color:var(--col-danger); flex-shrink:0;" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             </div>
         `;
     });
     groupDiv.innerHTML = `
-        <div style="display:flex; gap:5px; margin-bottom:5px;">
-            <input type="text" class="modern-input mod-group-name" placeholder="Group name (e.g., Extra Toppings)" value="${group.groupName}" style="flex:2;">
-            <input type="number" class="modern-input mod-max-select" placeholder="Max select" value="${group.maxSelect}" style="flex:1; width:80px;">
-            <button class="icon-btn-sm" style="color:var(--col-danger);" onclick="this.closest('.modifier-group').remove()"><i class="fas fa-trash"></i></button>
+        <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
+            <input type="text" class="modern-input mod-group-name" placeholder="Group name" value="${group.groupName}" style="flex:1;">
+            <button class="icon-btn-sm" style="color:var(--col-danger); flex-shrink:0;" onclick="this.closest('.modifier-group').remove()" title="Remove group"><i class="fas fa-trash"></i></button>
         </div>
-        <div class="mod-options-list" style="margin-left:20px;">${optionsHtml}</div>
-        <button class="btn-modern" style="background:var(--bg-app); font-size:0.7rem; padding:5px;" onclick="addModifierOption(this)">+ Add Option</button>
+        <div class="mod-options-list" style="display:flex; flex-direction:column; gap:6px;">${optionsHtml}</div>
+        <button class="btn-modern" style="background:var(--col-primary-light); color:var(--col-primary); font-size:0.75rem; padding:6px 12px; margin-top:8px; border:none;" onclick="addModifierOption(this)">
+            <i class="fas fa-plus"></i> Add Option
+        </button>
     `;
     container.appendChild(groupDiv);
 }
@@ -215,13 +219,11 @@ function addModifierGroupFromData(group) {
 function addModifierOption(btn) {
     const optionsList = btn.previousElementSibling;
     const optionDiv = document.createElement('div');
-    optionDiv.style.display = 'flex';
-    optionDiv.style.gap = '5px';
-    optionDiv.style.marginBottom = '3px';
+    optionDiv.style.cssText = 'display:flex; gap:8px; align-items:center;';
     optionDiv.innerHTML = `
-        <input type="text" class="modern-input mod-opt-name" placeholder="Option name" style="flex:2;">
-        <input type="number" class="modern-input mod-opt-price" placeholder="Price" style="flex:1;">
-        <button class="icon-btn-sm" style="color:var(--col-danger);" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+        <input type="text" class="modern-input mod-opt-name" placeholder="Option name (e.g. Achaar)" style="flex:2;">
+        <input type="number" class="modern-input mod-opt-price" placeholder="Extra price (0 = free)" style="flex:1; min-width:80px;" value="0">
+        <button class="icon-btn-sm" style="color:var(--col-danger); flex-shrink:0;" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
     `;
     optionsList.appendChild(optionDiv);
 }
@@ -247,7 +249,6 @@ function saveManagerItem() {
     let modifiers = [];
     document.querySelectorAll('.modifier-group').forEach(group => {
         const groupName = group.querySelector('.mod-group-name').value.trim();
-        const maxSelect = parseInt(group.querySelector('.mod-max-select').value) || 1;
         const options = [];
         group.querySelectorAll('.mod-options-list .mod-opt-name').forEach((optInput, idx) => {
             const optName = optInput.value.trim();
@@ -255,7 +256,7 @@ function saveManagerItem() {
             if (optName) options.push({ name: optName, price: optPrice });
         });
         if (groupName && options.length > 0) {
-            modifiers.push({ groupName, maxSelect, options });
+            modifiers.push({ groupName, maxSelect: 999, options }); // 999 = unlimited
         }
     });
 
